@@ -6,29 +6,27 @@ export const BlogContext = createContext();
  
 export const BlogProvider = props => {
     const [blogs, setBlogs] = useState([]);
-
+    const [loading, setLoading] = useState(false);
     const ref = firebase.firestore().collection("blogs");
 
     const fetchBlogs = () => {
+        setLoading(true);
         ref.onSnapshot((querySnapshot) => {
             const items = [];
             querySnapshot.forEach((document) => {
                 items.push(document.data());
             })
             setBlogs(items);
+            setLoading(false);
         })
     }
 
     useEffect(() => {
         fetchBlogs();
     }, [])
-    
-
-    // Submit Blog Handler 
-    // axios.post('/blogs.json');
 
     return (
-        <BlogContext.Provider value={[blogs]}>
+        <BlogContext.Provider value={[blogs, loading]}>
             {props.children}
         </BlogContext.Provider>
     )

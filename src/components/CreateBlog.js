@@ -1,24 +1,44 @@
-import React from 'react'
-import axios from '../axios-blogs'
+import { useState, useContext } from 'react'
 
-const CreateBlog = () => {
-    const sendData = () => {
+const CreateBlog = ({ addBlog }) => {
+    const [name, setName] = useState('')
+    const [desc, setDesc] = useState('')
+    const [content, setContent] = useState('')
 
-        const data = {
-            name: 'entry one',
-            author: 'nick',
-            desc: 'day in life'
-        }
-
-        axios.post('/blogs.json', data)
-            .then(response => console.log(response))
-            .catch(error => console.log(error))
+    const onSubmit = (e) => {
+        e.preventDefault();
+        const id = (Math.floor(Math.random() * 10000) + 1).toString();
+        addBlog({name, desc, content, id});
+        setName('');
+        setDesc('');
+        setContent('');
     }
 
     return (
-        <div>
-            <button onClick={sendData}>Send dummy data</button>
-        </div>
+            <form>
+                <label>Name</label>
+                <input 
+                    className="form-control"
+                    type="text"
+                    value={name}
+                    onChange = {(e) => setName(e.target.value)}
+                />
+                <label>Description</label>
+                <input 
+                    className="form-control"
+                    type="text"
+                    value={desc}
+                    onChange = {(e) => setDesc(e.target.value)}
+                />
+                <label>What do you want to post?</label>
+                <input 
+                    className="form-control form-control-textarea"
+                    type="text"
+                    value={content}
+                    onChange = {(e) => setContent(e.target.value)}
+                />
+                <button className="btn" onClick={onSubmit}>Add Blog!</button>
+            </form>
     )
 }
 
