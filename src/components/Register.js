@@ -1,24 +1,24 @@
 import React, {useRef} from 'react'
 import {useAuth} from '../context/AuthContext'
-import {Link, useHistory} from 'react-router-dom'
+import {useHistory} from 'react-router-dom'
 
-const Login = () => {
-
+const Register = () => {
     const history = useHistory()
     const emailRef= useRef()
     const passwordRef= useRef()
-    const { loginHandler, error, loading, success } = useAuth()
+    const { registerHandler, error, loading, success, currentUser } = useAuth()
 
     const submitHandler = (e) => {
         e.preventDefault()
-        loginHandler(emailRef.current.value, passwordRef.current.value, history);
+        registerHandler(emailRef.current.value, passwordRef.current.value, history);
     }
 
     return (
         <div>
-            <h1>Login</h1>
+            <h1>Register an account</h1>
             {error && <div className="alert-error"><p>{error}</p></div>}
             {success && <div className="alert-success"><p>{success}</p></div>}
+            {currentUser.email}
             <form onSubmit={submitHandler}>
                 <div className="form-control">
                     <label>E-mail</label>
@@ -28,11 +28,10 @@ const Login = () => {
                     <label>Password</label>
                     <input type="password" minlength="6" required ref={passwordRef}/>
                 </div>
-                <button disabled={loading} type="submit">Login</button>
-                <button><Link to ="/register">Register</Link></button>
+                <button disabled={loading} type="submit">Register</button>
             </form>
         </div>
     )
 }
 
-export default Login
+export default Register

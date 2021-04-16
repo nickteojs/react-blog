@@ -1,14 +1,17 @@
-import { useState, useContext } from 'react'
+import { useState } from 'react'
+import {useAuth} from '../context/AuthContext'
 
 const CreateBlog = ({ addBlog }) => {
     const [name, setName] = useState('')
     const [desc, setDesc] = useState('')
     const [content, setContent] = useState('')
+    const {currentUser} = useAuth()
+    const [author, setAuthor] = useState(currentUser.email)
 
     const onSubmit = (e) => {
         e.preventDefault();
         const id = (Math.floor(Math.random() * 10000) + 1).toString();
-        addBlog({name, desc, content, id});
+        addBlog({name, desc, content, id, author});
         setName('');
         setDesc('');
         setContent('');

@@ -12,6 +12,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+ul li {
+  color: white;
+  cursor: pointer;
+}
+
 li {
   list-style-type: none;  
 }
@@ -100,6 +105,26 @@ nav ul li a {
   margin: 1em auto;
   cursor: pointer;
   display: flex;
+}
+
+.alert-error {
+  width: auto;
+  display: inline-block;
+  padding: 1em;
+  border-radius: 10px;
+  background: rgb(255, 133, 133);
+  color: white;
+  margin: 0 auto;
+}
+
+.alert-success {
+  width: auto;
+  display: inline-block;
+  padding: 1em;
+  border-radius: 10px;
+  background: rgb(133, 255, 174);
+  color: white;
+  margin: 0 auto;
 }
 
 /* Form Styling */
