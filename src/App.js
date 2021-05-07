@@ -7,14 +7,12 @@ import CreateBlog from './components/CreateBlog'
 import Blogs from './components/Blogs'
 import RecentBlogs from './components/RecentBlogs'
 import EditBlog from './components/EditBlog'
-import { BlogProvider } from './context/BlogContext'
 import PrivateRoute from './components/PrivateRoute'
 import firebase from './firebase'
 import { BlogContext } from './context/BlogContext'
 import {useContext} from 'react'
 import {AuthProvider} from './context/AuthContext'
-
-
+import Blog from './components/Blog';
 
 const App =() => {
   const ref = firebase.firestore().collection("blogs");
@@ -34,10 +32,10 @@ const App =() => {
       .catch(error => console.log(error));
   }
 
-  const editBlog = (updatedBlog) => {
+  const editBlog = (editedBlog) => {
     ref
-      .doc(updatedBlog.id)
-      .update(updatedBlog)
+      .doc(editedBlog.id)
+      .update(editedBlog)
       .catch(error => console.log(error));
   }
 
@@ -49,12 +47,14 @@ const App =() => {
               <Switch>
                 <Route path="/" exact component={RecentBlogs}/>
                 <PrivateRoute path="/create" exact render={props => (<CreateBlog {...props} addBlog={addBlog}/>)}/>
-                <Route path="/blogs" exact render={props => (<Blogs {...props} removeBlog={removeBlog}/>)}/>
+                <Route path="/blogs" exact render={props => (<Blogs {...props} />)}/>
                 <Route path="/login" exact component={Login}/>
                 <Route path="/register" exact component={Register}/>
-                <Route path={["/blogs/:id", "/blogs/:id/edit"]} exact render={({match}) => (
+                <PrivateRoute path="/blogs/:id" exact render={props => (<Blog {...props} removeBlog={removeBlog}/>)}/>
+                <PrivateRoute path={["/blogs/:id/edit"]} exact render={({match}) => (
                   <EditBlog blog={blogs.find(b => b.id === match.params.id)} editBlog={editBlog}/>
                 )}/>
+                <Route render={() => <Redirect to="/" />} />
               </Switch>
             </div>
           </Router>

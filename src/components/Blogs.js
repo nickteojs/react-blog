@@ -1,14 +1,25 @@
 import React, { useContext } from 'react'
-import Blog from './Blog'
 import { BlogContext } from '../context/BlogContext'
+import {Link} from 'react-router-dom'
+import Loader from './Loader'
 
-const Blogs = ({removeBlog}) => {
-    const [blogs] = useContext(BlogContext);
-    
+const Blogs = () => {
+    const [blogs, loading] = useContext(BlogContext);
+    if (loading) {
+        return <Loader />
+    }
     return (
-        <div>
+        <div className="blog-invidivual">
             {blogs.map(blog => (
-                <Blog name={blog.name} content={blog.content} desc={blog.desc} removeBlog={removeBlog} blog={blog} key={blog.id}/>
+                <Link to={{
+                    pathname:`/blogs/${blog.id}`,
+                    state: {
+                        blog,
+                    }
+                }} key={blog.id}>      
+                    <h1>{blog.name}</h1>
+                    <p>{blog.author}</p>
+                </Link>
             ))}
         </div>
     )

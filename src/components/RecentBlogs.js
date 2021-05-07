@@ -9,6 +9,7 @@ const RecentBlogs = () => {
     if (loading) {
         return <Loader />
     }
+    
     return (
         <div>
             <div><h1 className="text-center">Recent Blogs</h1></div>

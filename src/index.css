@@ -76,6 +76,11 @@ nav ul li a {
   margin: 1em auto;
 }
 
+.blog-invidivual {
+  color: black;
+  background-color: lightblue;
+}
+
 .blog-preview {
   width: 50%;
   height: auto;

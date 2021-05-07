@@ -1,6 +1,9 @@
 import React, {useRef} from 'react'
 import {useAuth} from '../context/AuthContext'
 import {Link, useHistory} from 'react-router-dom'
+import Snackbar from '@material-ui/core/Snackbar';
+import Alert from '@material-ui/lab/Alert';
+
 
 const Login = () => {
 
@@ -16,6 +19,11 @@ const Login = () => {
 
     return (
         <div>
+            <Snackbar autoHideDuration={6000}>
+                <Alert severity="success">
+                    This is a success message!
+                </Alert>
+            </Snackbar>
             <h1>Login</h1>
             {error && <div className="alert-error"><p>{error}</p></div>}
             {success && <div className="alert-success"><p>{success}</p></div>}

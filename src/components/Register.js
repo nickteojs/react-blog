@@ -6,7 +6,7 @@ const Register = () => {
     const history = useHistory()
     const emailRef= useRef()
     const passwordRef= useRef()
-    const { registerHandler, error, loading, success, currentUser } = useAuth()
+    const { registerHandler, error, loading, success } = useAuth()
 
     const submitHandler = (e) => {
         e.preventDefault()
@@ -18,7 +18,6 @@ const Register = () => {
             <h1>Register an account</h1>
             {error && <div className="alert-error"><p>{error}</p></div>}
             {success && <div className="alert-success"><p>{success}</p></div>}
-            {currentUser.email}
             <form onSubmit={submitHandler}>
                 <div className="form-control">
                     <label>E-mail</label>

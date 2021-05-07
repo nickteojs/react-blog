@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
     const [success, setSuccess] = useState('')
+
     const registerHandler = (email, password, history) => {
         setLoading(true);
         auth.createUserWithEmailAndPassword(email, password)
@@ -57,6 +58,7 @@ export const AuthProvider = ({ children }) => {
         })
     }
 
+    // Is called whenever we use login/register to set the current user
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
             setCurrentUser(user);

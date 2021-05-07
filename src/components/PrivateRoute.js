@@ -2,18 +2,13 @@ import React from 'react'
 import {Route, Redirect} from 'react-router-dom'
 import {useAuth} from '../context/AuthContext'
 
-// If user is not logged in, redirect them to the login page.
-const PrivateRoute = ({component: Component, ...rest}) => {
+const PrivateRoute = ({component, render, ...rest}) => {
     const {currentUser} = useAuth();
     return (
-        <Route
-        {...rest}
-        render={props => {
-           return currentUser ? <Component {...props} /> : <Redirect to ="/login"></Redirect>
-        }}
-        >
-            
-        </Route>
+        <Route {...rest} render={props => {
+        //    return currentUser ? <Component {...props} /> : <Redirect to ="/login" />
+           return currentUser ? (component ? React.createElement(component, props) : render (props)) : <Redirect to="/login" />
+        }} />
     )
 }
 
