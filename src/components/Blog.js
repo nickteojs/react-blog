@@ -8,10 +8,8 @@ import firebase from '../firebase'
 import Loader from './Loader'
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core'
-import {Typography} from '@material-ui/core'
+import { Button, Typography } from '@material-ui/core'
 import FlashMessage from './FlashMessage'
-
 
 const Blog = () => {
     const [name, setName] = useState('');

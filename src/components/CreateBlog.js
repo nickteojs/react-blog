@@ -22,18 +22,20 @@ const CreateBlog = () => {
     }
 
     return (
-            <form>
+            <form onSubmit={onSubmit}>
                 <label>Name</label>
                 <input 
                     className="form-control"
                     type="text"
                     value={name}
+                    required
                     onChange = {(e) => setName(e.target.value)}
                 />
                 <label>Description</label>
                 <input 
                     className="form-control"
                     type="text"
+                    required
                     value={desc}
                     onChange = {(e) => setDesc(e.target.value)}
                 />
@@ -41,10 +43,11 @@ const CreateBlog = () => {
                 <input 
                     className="form-control form-control-textarea"
                     type="text"
+                    required
                     value={content}
                     onChange = {(e) => setContent(e.target.value)}
                 />
-                <button className="btn" onClick={onSubmit}>Add Blog!</button>
+                <button className="btn" type="submit">Add Blog!</button>
             </form>
     )
 }
