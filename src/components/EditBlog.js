@@ -1,16 +1,17 @@
-import React, {useState, useEffect} from 'react'
-import useStateWithPromise from '../hooks/useStateWithPromise'
+import React, {useState, useEffect, useContext} from 'react'
 import firebase from '../firebase'
 import { useParams, Redirect, useHistory } from 'react-router-dom';
 import Loader from '../components/Loader'
 import {useAuth} from '../context/AuthContext'
+import {BlogContext} from '../context/BlogContext'
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button } from '@material-ui/core'
 import {Typography} from '@material-ui/core'
+import FlashMessage from './FlashMessage'
 
 
-const EditBlog = ({blog, editBlog}) => {
+const EditBlog = ({blog}) => {
     const history = useHistory()
     const [name, setName] = useState('');
     const [desc, setDesc] = useState('')
@@ -19,6 +20,7 @@ const EditBlog = ({blog, editBlog}) => {
     const [loading, setLoading] = useState(true)
     const {currentUser} = useAuth()
     const [open, setOpen] = useState(false)
+    const {editBlog, error, success} = useContext(BlogContext)
     let {id} = useParams();
     const ref = firebase.firestore().collection("blogs").doc(id);
 
@@ -27,6 +29,7 @@ const EditBlog = ({blog, editBlog}) => {
         const editedBlog = {...blog, name, desc, content}
         editBlog(editedBlog);
         setOpen(false)
+        console.log("Triggered")
     }
 
     const useStyles = makeStyles((theme) => ({
@@ -75,17 +78,9 @@ const EditBlog = ({blog, editBlog}) => {
         }
     }
 
-    // const init = async () => {
-    //     await blogFetcher()
-    //     authChecker()
-    // }
-
     useEffect(() => {
         blogFetcher();
     }, [author])
-
-
-    
 
     if (loading) {
         return <Loader />
@@ -146,6 +141,8 @@ const EditBlog = ({blog, editBlog}) => {
             >
             {modalBody}
             </Modal>
+            {success ? <FlashMessage message={success} success={success} /> : null}
+            {error ? <FlashMessage message={error} error={error}/> : null}
         </div>
     )
 }

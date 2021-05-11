@@ -13,52 +13,35 @@ import { BlogContext } from './context/BlogContext'
 import {useContext} from 'react'
 import {AuthProvider} from './context/AuthContext'
 import Blog from './components/Blog';
+import FlashMessage from './components/FlashMessage'
+import {useAuth} from './context/AuthContext'
 
 const App =() => {
   const ref = firebase.firestore().collection("blogs");
-  const [blogs] = useContext(BlogContext);
+  const {blogs} = useContext(BlogContext);
+  const { success } = useAuth()
 
-  const addBlog = (newBlog) => {
-    ref
-        .doc(newBlog.id)
-        .set(newBlog)
-        .catch(error => console.log(error));
-  }
-
-  const removeBlog = (blog) => {
-    ref
-      .doc(blog.id)
-      .delete()
-      .catch(error => console.log(error));
-  }
-
-  const editBlog = (editedBlog) => {
-    ref
-      .doc(editedBlog.id)
-      .update(editedBlog)
-      .catch(error => console.log(error));
-  }
+  
 
   return (
-      <AuthProvider>
           <Router>
             <div className="App">
               <Navigation />
               <Switch>
                 <Route path="/" exact component={RecentBlogs}/>
-                <PrivateRoute path="/create" exact render={props => (<CreateBlog {...props} addBlog={addBlog}/>)}/>
+                <PrivateRoute path="/create" exact render={props => (<CreateBlog {...props} />)}/>
                 <Route path="/blogs" exact render={props => (<Blogs {...props} />)}/>
                 <Route path="/login" exact component={Login}/>
                 <Route path="/register" exact component={Register}/>
-                <PrivateRoute path="/blogs/:id" exact render={props => (<Blog {...props} removeBlog={removeBlog}/>)}/>
+                <PrivateRoute path="/blogs/:id" exact render={props => (<Blog {...props} />)}/>
                 <PrivateRoute path={["/blogs/:id/edit"]} exact render={({match}) => (
-                  <EditBlog blog={blogs.find(b => b.id === match.params.id)} editBlog={editBlog}/>
+                  <EditBlog blog={blogs.find(b => b.id === match.params.id)} />
                 )}/>
                 <Route render={() => <Redirect to="/" />} />
               </Switch>
+              {success ? <FlashMessage message={success} success={success}/> : null}
             </div>
           </Router>
-        </AuthProvider>
   );
 }
 

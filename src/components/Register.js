@@ -1,6 +1,8 @@
 import React, {useRef} from 'react'
 import {useAuth} from '../context/AuthContext'
 import {useHistory} from 'react-router-dom'
+import FlashMessage from './FlashMessage'
+
 
 const Register = () => {
     const history = useHistory()
@@ -16,8 +18,6 @@ const Register = () => {
     return (
         <div>
             <h1>Register an account</h1>
-            {error && <div className="alert-error"><p>{error}</p></div>}
-            {success && <div className="alert-success"><p>{success}</p></div>}
             <form onSubmit={submitHandler}>
                 <div className="form-control">
                     <label>E-mail</label>
@@ -29,6 +29,7 @@ const Register = () => {
                 </div>
                 <button disabled={loading} type="submit">Register</button>
             </form>
+            {error ? <FlashMessage message={error} error={error}/> : null}
         </div>
     )
 }

@@ -16,23 +16,25 @@ export const AuthProvider = ({ children }) => {
     const registerHandler = (email, password, history) => {
         setLoading(true);
         auth.createUserWithEmailAndPassword(email, password)
-            .then((userCredential) => {
-                var user = userCredential
+            .then(() => {
                 setLoading(false)
                 setSuccess("Account created!");
+                history.push("/")
             })
             .catch((error) => {
                 let errorMsg = error.message;
                 setError(errorMsg);
                 setLoading(false);
+                setTimeout(() => {
+                    setError('')
+                }, 2000);
             })
     }
 
     const loginHandler = (email, password, history) => {
         setLoading(true)
         auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            var user = userCredential
+        .then(() => {
             setLoading(false)
             setSuccess("Logged in!");
             history.push("/")
@@ -41,6 +43,9 @@ export const AuthProvider = ({ children }) => {
             let errorMsg = error.message;
             setError(errorMsg);
             setLoading(false);
+            setTimeout(() => {
+                setError('')
+            }, 2000);
         })
     }
 
@@ -49,6 +54,7 @@ export const AuthProvider = ({ children }) => {
         auth.signOut()
         .then(() => {
             setLoading(false)
+            setSuccess("Logged out!");
             history.push("/")
         })
         .catch((error) => {

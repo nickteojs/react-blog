@@ -4,7 +4,7 @@ import { BlogContext } from '../context/BlogContext'
 
 
 const RecentBlogs = () => {
-    const [blogs, loading] = useContext(BlogContext);
+    const {blogs, loading} = useContext(BlogContext);
 
     if (loading) {
         return <Loader />

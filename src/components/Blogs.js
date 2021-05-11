@@ -2,9 +2,10 @@ import React, { useContext } from 'react'
 import { BlogContext } from '../context/BlogContext'
 import {Link} from 'react-router-dom'
 import Loader from './Loader'
+import FlashMessage from './FlashMessage'
 
 const Blogs = () => {
-    const [blogs, loading] = useContext(BlogContext);
+    const {blogs, loading, success} = useContext(BlogContext);
     if (loading) {
         return <Loader />
     }
@@ -21,6 +22,7 @@ const Blogs = () => {
                     <p>{blog.author}</p>
                 </Link>
             ))}
+            {success ? <FlashMessage message={success} success={success}/> : null}
         </div>
     )
 }

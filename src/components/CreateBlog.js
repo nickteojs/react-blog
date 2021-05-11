@@ -1,17 +1,21 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import {useAuth} from '../context/AuthContext'
+import {BlogContext} from '../context/BlogContext'
+import {useHistory} from 'react-router-dom'
 
-const CreateBlog = ({ addBlog }) => {
+const CreateBlog = () => {
     const [name, setName] = useState('')
     const [desc, setDesc] = useState('')
     const [content, setContent] = useState('')
     const {currentUser} = useAuth()
     const [author, setAuthor] = useState(currentUser.email)
+    const {addBlog} = useContext(BlogContext)
+    const history = useHistory()
 
     const onSubmit = (e) => {
         e.preventDefault();
         const id = (Math.floor(Math.random() * 10000) + 1).toString();
-        addBlog({name, desc, content, id, author});
+        addBlog({name, desc, content, id, author}, history);
         setName('');
         setDesc('');
         setContent('');
