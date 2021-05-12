@@ -1,5 +1,4 @@
 import React, { createContext, useState, useEffect } from 'react'
-import {Redirect} from 'react-router-dom'
 import firebase from '../firebase'
 
 export const BlogContext = createContext();
@@ -24,10 +23,12 @@ export const BlogProvider = ({children}) => {
     }
 
     const addBlog = (newBlog, history) => {
+        setLoading(true)
         ref
             .doc(newBlog.id)
             .set(newBlog)
             .then(() => {
+                setLoading(false)
                 setSuccess('Blog created!')
                 history.push("/blogs")
                 setTimeout(() => {
@@ -35,6 +36,7 @@ export const BlogProvider = ({children}) => {
                 }, 2000);
             })
             .catch((error) => {
+                setLoading(false)
                 let errorMsg = error.message;
                 setError(errorMsg);
                 setTimeout(() => {

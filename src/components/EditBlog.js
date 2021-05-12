@@ -4,12 +4,9 @@ import { useParams, Redirect, useHistory } from 'react-router-dom';
 import Loader from '../components/Loader'
 import {useAuth} from '../context/AuthContext'
 import {BlogContext} from '../context/BlogContext'
-import Modal from '@material-ui/core/Modal';
+import {Button, TextField, Link, Box, Container, Typography, Modal} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button } from '@material-ui/core'
-import {Typography} from '@material-ui/core'
 import FlashMessage from './FlashMessage'
-
 
 const EditBlog = ({blog}) => {
     const history = useHistory()
@@ -43,6 +40,23 @@ const EditBlog = ({blog}) => {
           boxShadow: theme.shadows[5],
           padding: theme.spacing(3, 4, 3),
         },
+        paper2: {
+            marginTop: theme.spacing(8),
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          },
+          avatar: {
+            margin: theme.spacing(1),
+            backgroundColor: theme.palette.secondary.main,
+          },
+          form: {
+            width: '100%', // Fix IE 11 issue.
+            marginTop: theme.spacing(1),
+          },
+          submit: {
+            margin: theme.spacing(3, 0, 2),
+          },
       }));
 
     const classes = useStyles();
@@ -105,34 +119,58 @@ const EditBlog = ({blog}) => {
     )
 
     return (
-        <div>
+        <Container>
             <form>
-                <label>Name</label>
-                <input 
-                    className="form-control"
-                    type="text"
-                    defaultValue={name}
-                    onChange={e => setName(e.target.value)}
-                    disabled={currentUser.email !== author}
-                />
-                <label>Description</label>
-                <input 
-                    className="form-control"
-                    type="text"
-                    defaultValue={desc}
-                    onChange={e => setDesc(e.target.value)}
-                    disabled={currentUser.email !== author}
-                />
-                <label>What do you want to post?</label>
-                <input 
-                    className="form-control form-control-textarea"
-                    type="text"
-                    defaultValue={content}
-                    onChange={e => setContent(e.target.value)}
-                    disabled={currentUser.email !== author}
-                />
-                <button className="btn" type="button" onClick={handleOpen}>Save changes</button>
-            </form>
+                <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Post Name"
+                        type="text"
+                        value={name}
+                        autoFocus
+                        disabled={currentUser.email !== author}
+                        onChange = {(e) => setName(e.target.value)}
+                        >
+                    </TextField>
+                <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Post Description"
+                        type="text"
+                        value={desc}
+                        autoFocus
+                        disabled={currentUser.email !== author}
+                        onChange = {(e) => setDesc(e.target.value)}
+                        >
+                    </TextField>
+                <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Post Content"
+                        type="text"
+                        value={content}
+                        autoFocus
+                        multiline
+                        disabled={currentUser.email !== author}
+                        onChange = {(e) => setContent(e.target.value)}
+                        >
+                    </TextField>
+                    <Button
+                        alignItems="center" 
+                        variant="contained" 
+                        color="primary" 
+                        disabled={loading}
+                        className={classes.submit} 
+                        onClick={handleOpen}>
+                        Save changes!
+                    </Button>            
+                    </form>
             <Modal
                 open={open}
                 onClose={handleClose}
@@ -143,7 +181,7 @@ const EditBlog = ({blog}) => {
             </Modal>
             {success ? <FlashMessage message={success} success={success} /> : null}
             {error ? <FlashMessage message={error} error={error}/> : null}
-        </div>
+        </Container>
     )
 }
 

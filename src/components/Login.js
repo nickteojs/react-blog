@@ -35,6 +35,9 @@ const Login = () => {
         submit: {
           margin: theme.spacing(3, 0, 2),
         },
+        title : {
+            ...theme.typography.title
+        }
     }));
 
     const classes = useStyles();
@@ -42,7 +45,12 @@ const Login = () => {
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
-                <Typography component="h1" variant="h5">Sign in</Typography>            
+                <Box mb={2} color="#6865FF">
+                    <Typography variant="h1" className={classes.title}>
+                        Story
+                    </Typography>
+                </Box>
+                <Typography component="h1" variant="h6">Sign in</Typography>            
                 <form className={classes.form} onSubmit={submitHandler}>
                     <TextField
                         variant="outlined"

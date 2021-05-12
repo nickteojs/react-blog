@@ -4,14 +4,14 @@ import {Link} from 'react-router-dom'
 import Loader from './Loader'
 import FlashMessage from './FlashMessage'
 import { makeStyles } from '@material-ui/core/styles';
-import {Card, CardActions, CardContent, Button, Typography} from '@material-ui/core'
+import {Card, CardActions, CardContent, Button, Typography, Container, Box} from '@material-ui/core'
 
 const Blogs = () => {
     const {blogs, loading, success} = useContext(BlogContext);
     const useStyles = makeStyles({
         root: {
-          minWidth: 275,
-          margin: 20
+          maxWidth: 275,
+          margin: 20,
         },
         title: {
           fontSize: 14,
@@ -27,8 +27,9 @@ const Blogs = () => {
         return <Loader />
     }
     return (
-        <Card variant="outlined" className={classes.root}>
+        <Container>
             {blogs.map(blog => (
+                <Card variant="outlined" className={classes.root}>
                 <Link to={{
                     pathname:`/blogs/${blog.id}`,
                     state: {
@@ -36,14 +37,18 @@ const Blogs = () => {
                     }
                 }} 
                     key={blog.id}>
-                    <CardContent>
+                        <Box textAlign="center">
+                        <CardContent>
                     <h1>{blog.name}</h1>
                     <p>{blog.author}</p>
                     </CardContent>
+                        </Box>
+                    
                 </Link>
+                </Card>
             ))}
             {success ? <FlashMessage message={success} success={success}/> : null}
-        </Card>
+        </Container>
     )
 }
 

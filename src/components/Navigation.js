@@ -1,6 +1,6 @@
 import {Link, useHistory} from 'react-router-dom'
 import {useAuth} from '../context/AuthContext'
-import {AppBar, Toolbar, Typography, Button} from '@material-ui/core'
+import {AppBar, Toolbar, Typography, Button, Container} from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 
 const Navigation = () => {
@@ -19,7 +19,9 @@ const Navigation = () => {
         },
         title: {
           flexGrow: 1,
+          ...theme.typography.title
         },
+
     }));
 
     const classes = useStyles();
@@ -27,8 +29,11 @@ const Navigation = () => {
     return (
         <div className={classes.root}>
             <AppBar position="static">
+                <Container>
                 <Toolbar>
-                <h3 className="navbar-title"><a href="/">Title</a></h3>
+                <Typography variant="h4" className={classes.title}>
+                    Story
+                </Typography>
                 <div className="nav-items">
                     <Button color="inherit" ><Link to ="/">Home</Link></Button>
                     <Button color="inherit" ><Link to ="/blogs">Blogs</Link></Button>
@@ -46,8 +51,8 @@ const Navigation = () => {
                     }
                 </div>
                 </Toolbar>
+                </Container>
             </AppBar>
-            
         </div>
     )
 }
