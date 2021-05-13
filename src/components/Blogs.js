@@ -40,6 +40,7 @@ const Blogs = () => {
                         <Box textAlign="center">
                         <CardContent>
                     <h1>{blog.name}</h1>
+                    <p>{blog.desc}</p>
                     <p>{blog.author}</p>
                     </CardContent>
                         </Box>

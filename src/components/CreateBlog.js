@@ -13,11 +13,25 @@ const CreateBlog = () => {
     const [author, setAuthor] = useState(currentUser.email)
     const {loading, addBlog} = useContext(BlogContext)
     const history = useHistory()
+    const timeCreated = (new Date()).getTime();
+
+    let dateCreated = new Date();
+    let dd = dateCreated.getDate();
+    let mm = dateCreated.getMonth()+1;
+    let yy = dateCreated.getFullYear();
+
+    if(dd<10){
+        dd='0'+dd
+    } 
+    if(mm<10){
+        mm='0'+mm
+    } 
+    dateCreated = (`${yy}-${mm}-${dd}`).toString();
 
     const onSubmit = (e) => {
         e.preventDefault();
         const id = (Math.floor(Math.random() * 10000) + 1).toString();
-        addBlog({name, desc, content, id, author}, history);
+        addBlog({name, desc, content, id, author, timeCreated, dateCreated}, history);
         setName('');
         setDesc('');
         setContent('');
