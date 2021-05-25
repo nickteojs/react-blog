@@ -10,11 +10,12 @@ const Register = () => {
     const history = useHistory()
     const emailRef= useRef()
     const passwordRef= useRef()
+    const displayRef = useRef()
     const { registerHandler, error, loading } = useAuth()
 
     const submitHandler = (e) => {
         e.preventDefault()
-        registerHandler(emailRef.current.value, passwordRef.current.value, history);
+        registerHandler(emailRef.current.value, passwordRef.current.value, displayRef.current.value, history);
     }
 
     const useStyles = makeStyles((theme) => ({
@@ -53,6 +54,16 @@ const Register = () => {
                         type="email"
                         inputRef={emailRef}
                         autoFocus
+                        >
+                    </TextField>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Display Name"
+                        type="text"
+                        inputRef={displayRef}
                         >
                     </TextField>
                     <TextField

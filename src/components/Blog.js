@@ -1,14 +1,11 @@
 import React, {useState, useEffect, useContext} from 'react'
-import {TiDelete} from 'react-icons/ti'
-import {AiFillEdit} from 'react-icons/ai'
 import {Link, useLocation, useParams, useHistory} from 'react-router-dom'
 import {useAuth} from '../context/AuthContext'
 import {BlogContext} from '../context/BlogContext'
 import firebase from '../firebase'
 import Loader from './Loader'
-import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Typography } from '@material-ui/core'
+import {Grid, Card, CardContent, CardActionArea, CardMedia, Typography, Box, Button, Modal} from '@material-ui/core'
 import FlashMessage from './FlashMessage'
 
 const Blog = () => {
@@ -16,6 +13,9 @@ const Blog = () => {
     const [desc, setDesc] = useState('');
     const [content, setContent] = useState('');
     const [author, setAuthor] = useState('');
+    const [dateCreated, setDateCreated] = useState('')
+    const [image, setImage] = useState('')
+    const [display, setDisplay] = useState('')
     const [loading, setLoading] = useState(true)
     const {currentUser} = useAuth();
     const [open, setOpen] = useState(false)
@@ -43,6 +43,25 @@ const Blog = () => {
           boxShadow: theme.shadows[5],
           padding: theme.spacing(3, 4, 3),
         },
+        palette: {
+            error: {
+                main: '#e57373'
+            }
+        },
+        content: {
+            whiteSpace: 'pre-wrap'
+        },
+        description: {
+            fontStyle: 'italic'
+        },
+        button: {
+            marginRight: 10
+        },
+        blogContent: {
+            paddingLeft: 50,
+            paddingRight: 50,
+            marginBottom: 20
+        }
       }));
 
     const classes = useStyles();
@@ -51,11 +70,14 @@ const Blog = () => {
         ref.get().then((doc) => {
             if (doc.exists) {
                 setLoading(false)
-                const {author, content, desc, name} = doc.data()
+                const {author, content, desc, name, url, display, dateCreated} = doc.data()
                 setName(name)
                 setDesc(desc)
                 setContent(content)
                 setAuthor(author)
+                setImage(url)
+                setDisplay(display)
+                setDateCreated(dateCreated)
             } else {
                 console.log("No such document!");
             }
@@ -91,27 +113,57 @@ const Blog = () => {
     )
 
     return (
-        <div className="blog">
-            <h1>{name}</h1>
-            <p>{desc}</p>
-            <p>{content}</p>
-            <p>Posted by: {author}</p>
-            {currentUser.email === blog.author ? <TiDelete style={{cursor: 'pointer'}} onClick={handleOpen}/> : null}
-            {currentUser.email === blog.author ? <Link to={{
-                pathname:`/blogs/${blog.id}/edit`
-            }}>
-                <AiFillEdit style={{color: 'black'}}/>
-            </Link> : null}
-            <Modal
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="simple-modal-title"
-                aria-describedby="simple-modal-description"
-            >
-            {modalBody}
-            </Modal>
-            {error ? <FlashMessage message={error} error={error}/> : null}
-        </div>
+        <Box my={10}>
+            <Grid container justify="center">
+                <Grid item xs={10} md={9}>
+                    <Card>
+                        <CardMedia>
+                <img src={image} alt="" className="thumbnail"/>
+                </CardMedia>
+                <CardContent className={classes.blogContent}>
+                <Typography gutterBottom variant="h3">{name}</Typography>
+                <Typography gutterBottom className={classes.description}>{desc}</Typography>
+                <Typography variant="overline">{dateCreated} by {display}</Typography>
+                <Box mt={2} mb={4}>
+                    <Typography className={classes.content} variant="body1">{content}</Typography>
+                </Box>
+                {currentUser.email === blog.author ? 
+                    <Link to={{
+                        pathname:`/blogs/${blog.id}/edit`
+                    }}>
+                        <Button
+                            alignItems="center" 
+                            variant="contained" 
+                            color="primary" 
+                            className={classes.button}
+                            onClick={handleOpen}>
+                            Edit Blog
+                        </Button>
+                    </Link> 
+                : null}
+                {currentUser.email === blog.author ? 
+                    <Button 
+                        alignItems="center" 
+                        variant="contained" 
+                        color="secondary" 
+                        onClick={handleOpen}>
+                        Delete Blog
+                    </Button> 
+                : null}
+                </CardContent>
+                <Modal
+                    open={open}
+                    onClose={handleClose}
+                    aria-labelledby="simple-modal-title"
+                    aria-describedby="simple-modal-description"
+                >
+                {modalBody}
+                </Modal>
+                {error ? <FlashMessage message={error} error={error}/> : null}
+                </Card>
+                </Grid>
+            </Grid>
+        </Box>
     )
 }
 

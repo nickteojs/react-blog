@@ -1,5 +1,8 @@
 import React, {useState, createContext, useEffect, useContext} from 'react'
 import { auth } from '../firebase'
+import firebase from '../firebase'
+
+const ref = firebase.firestore().collection("users");
 
 export const AuthContext = createContext();
 
@@ -13,10 +16,13 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [success, setSuccess] = useState('')
 
-    const registerHandler = (email, password, history) => {
+    const registerHandler = (emailRef, passwordRef, displayRef, history) => {
         setLoading(true);
-        auth.createUserWithEmailAndPassword(email, password)
-            .then(() => {
+        auth.createUserWithEmailAndPassword(emailRef, passwordRef)
+            .then(credential => {
+                ref.doc(credential.user.uid).set({
+                    displayName: displayRef
+                })
                 setLoading(false)
                 setSuccess("Account created!");
                 history.push("/")

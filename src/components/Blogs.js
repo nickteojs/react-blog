@@ -4,15 +4,16 @@ import {Link} from 'react-router-dom'
 import Loader from './Loader'
 import FlashMessage from './FlashMessage'
 import { makeStyles } from '@material-ui/core/styles';
-import {Card, CardActions, CardContent, Button, Typography, Container, Box} from '@material-ui/core'
+import {Grid, Card, CardContent, CardActionArea, CardMedia, Typography, Box, Container} from '@material-ui/core'
 
 const Blogs = () => {
     const {blogs, loading, success} = useContext(BlogContext);
     const useStyles = makeStyles({
-        root: {
-          maxWidth: 275,
-          margin: 20,
-        },
+        card: {
+            maxWidth: 370,
+            marginTop: 20,
+            marginBottom: 20
+          },
         title: {
           fontSize: 14,
         },
@@ -28,27 +29,37 @@ const Blogs = () => {
     }
     return (
         <Container>
+        <Box my={4}>
+        <Grid container justify="center"> 
             {blogs.map(blog => (
-                <Card variant="outlined" className={classes.root}>
-                <Link to={{
-                    pathname:`/blogs/${blog.id}`,
-                    state: {
-                        blog,
-                    }
-                }} 
-                    key={blog.id}>
-                        <Box textAlign="center">
-                        <CardContent>
-                    <h1>{blog.name}</h1>
-                    <p>{blog.desc}</p>
-                    <p>{blog.author}</p>
-                    </CardContent>
-                        </Box>
-                    
-                </Link>
+                <Grid container item xs={10} md={6} lg={4} justify="center">
+                <Card variant="outlined" className={classes.card}>
+                    <CardActionArea>
+                        <CardMedia
+                            component="img"
+                            height="160"
+                            src={blog.url} 
+                        />
+                        <Link to={{
+                            pathname:`/blogs/${blog.id}`,
+                            state: {blog}
+                        }} 
+                            key={blog.id}>
+                                <Box textAlign="center">
+                                    <CardContent>
+                                        <Typography gutterBottom variant="h5" component="h2">{blog.name}</Typography>
+                                        <Typography gutterBottom variant="body2" component="p" colo="textSecondary">{blog.desc}</Typography>
+                                        <Typography variant="body2" component="p" colo="textSecondary">By: {blog.display}</Typography>
+                                    </CardContent>
+                                </Box>
+                        </Link>
+                    </CardActionArea>
                 </Card>
+                </Grid>
             ))}
             {success ? <FlashMessage message={success} success={success}/> : null}
+        </Grid>
+        </Box>
         </Container>
     )
 }
