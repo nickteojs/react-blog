@@ -1,6 +1,6 @@
 import React, {useRef} from 'react'
 import {useAuth} from '../context/AuthContext'
-import {useHistory} from 'react-router-dom'
+import {useHistory, Redirect} from 'react-router-dom'
 import FlashMessage from './FlashMessage'
 import {Button, TextField, Box, Container, Typography} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -11,12 +11,8 @@ const Register = () => {
     const emailRef= useRef()
     const passwordRef= useRef()
     const displayRef = useRef()
-    const { registerHandler, error, loading } = useAuth()
-
-    const submitHandler = (e) => {
-        e.preventDefault()
-        registerHandler(emailRef.current.value, passwordRef.current.value, displayRef.current.value, history);
-    }
+    const bioRef = useRef()
+    const { registerHandler, error, loading, currentUser } = useAuth()
 
     const useStyles = makeStyles((theme) => ({
         paper: {
@@ -35,15 +31,24 @@ const Register = () => {
         },
         submit: {
           margin: theme.spacing(3, 0, 2),
-        },
+        }
     }));
 
     const classes = useStyles();
 
+    const submitHandler = (e) => {
+        e.preventDefault()
+        registerHandler(emailRef.current.value, passwordRef.current.value, displayRef.current.value, bioRef.current.value, history);
+    }
+
+    if (currentUser) {
+        return <Redirect to="/"/>
+    }
+    
     return (
         <Container component="main" maxWidth="xs">
             <div className={classes.paper}>
-            <Typography component="h1" variant="h5">Make an account!</Typography>            
+            <Typography component="h1" variant="h4">Make an account!</Typography>            
                 <form className={classes.form} onSubmit={submitHandler}>
                     <TextField
                         variant="outlined"
@@ -71,6 +76,17 @@ const Register = () => {
                         margin="normal"
                         required
                         fullWidth
+                        label="Short description about yourself"
+                        type="text"
+                        inputRef={bioRef}
+                        >
+                    </TextField>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        color="neutral.main"
+                        fullWidth
                         label="Password"
                         type="password"
                         inputRef={passwordRef}
@@ -79,7 +95,6 @@ const Register = () => {
                     <Button 
                         fullWidth 
                         variant="contained" 
-                        color="primary" 
                         className={classes.submit} 
                         disabled={loading} 
                         type="submit">

@@ -8,20 +8,15 @@ import Blogs from './components/Blogs'
 import RecentBlogs from './components/RecentBlogs'
 import EditBlog from './components/EditBlog'
 import PrivateRoute from './components/PrivateRoute'
-import firebase from './firebase'
 import { BlogContext } from './context/BlogContext'
 import {useContext} from 'react'
-import {AuthProvider} from './context/AuthContext'
 import Blog from './components/Blog';
 import FlashMessage from './components/FlashMessage'
 import {useAuth} from './context/AuthContext'
 
 const App =() => {
-  const ref = firebase.firestore().collection("blogs");
   const {blogs} = useContext(BlogContext);
   const { success } = useAuth()
-
-  
 
   return (
           <Router>
@@ -33,7 +28,7 @@ const App =() => {
                 <Route path="/blogs" exact render={props => (<Blogs {...props} />)}/>
                 <Route path="/login" exact component={Login}/>
                 <Route path="/register" exact component={Register}/>
-                <PrivateRoute path="/blogs/:id" exact render={props => (<Blog {...props} />)}/>
+                <Route path="/blogs/:id" exact render={props => (<Blog {...props} />)}/>
                 <PrivateRoute path={["/blogs/:id/edit"]} exact render={({match}) => (
                   <EditBlog blog={blogs.find(b => b.id === match.params.id)} />
                 )}/>

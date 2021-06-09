@@ -5,17 +5,17 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {BlogProvider} from './context/BlogContext'
 import {AuthProvider} from './context/AuthContext'
-import {ThemeProvider, useTheme} from '@material-ui/core'
+import {ThemeProvider} from '@material-ui/core'
 import Theme from './context/Theme'
 
 ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={Theme}>
-    <AuthProvider>
-    <BlogProvider>
-    <App />
-    </BlogProvider>
-    </AuthProvider>
+      <AuthProvider>
+        <BlogProvider>
+          <App />
+        </BlogProvider>
+      </AuthProvider>
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')

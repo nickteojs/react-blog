@@ -16,12 +16,13 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [success, setSuccess] = useState('')
 
-    const registerHandler = (emailRef, passwordRef, displayRef, history) => {
+    const registerHandler = (emailRef, passwordRef, displayRef, bioRef, history) => {
         setLoading(true);
         auth.createUserWithEmailAndPassword(emailRef, passwordRef)
             .then(credential => {
                 ref.doc(credential.user.uid).set({
-                    displayName: displayRef
+                    displayName: displayRef,
+                    bioName: bioRef
                 })
                 setLoading(false)
                 setSuccess("Account created!");

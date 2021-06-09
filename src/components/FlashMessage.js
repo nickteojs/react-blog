@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react'
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
 
-function Alert(props) {
+function Alert (props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
@@ -10,17 +10,16 @@ const FlashMessage = ({ message, success }) => {
     const [open, setOpen] = useState(true);
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
-        return;
+            return;
         }
-
         setOpen(false);
     };
 
-  useEffect(() => {
-    if (message.length > 0) {
-      setOpen(true);
-    }
-  }, [message]);
+    useEffect(() => {
+        if (message.length > 0) {
+        setOpen(true);
+        }
+    }, [message]);
 
     return (
         <div>

@@ -1,118 +1,121 @@
-import React, {useContext, useEffect, useState} from 'react'
+import React, {useContext, useEffect} from 'react'
 import Loader from './Loader'
 import {Link} from 'react-router-dom'
 import { BlogContext } from '../context/BlogContext'
-import {useAuth} from '../context/AuthContext'
-import auth from '../firebase'
-import firebase from '../firebase'
 import { makeStyles } from '@material-ui/core/styles';
-import Hero from '../media/hero2.jpg'
-import {Avatar, Box, Container, Card, CardActionArea, CardMedia, CardActions, Grid, CardContent, Typography, Button} from '@material-ui/core'
+import {Box, Container, CardMedia, Grid, Typography, AppBar, Toolbar, Hidden, useTheme, useMediaQuery} from '@material-ui/core'
+import Footer from './Footer'
 
 const RecentBlogs = () => {
-    const {blogs, loading} = useContext(BlogContext);
-    const {currentUser} = useAuth()
-    const [display, setDisplay] = useState()
-    const ref = firebase.firestore().collection("users");
-
-    useEffect(() => {
-        if (currentUser) {
-            ref.doc(currentUser.uid).get().then(doc => {
-                setDisplay(doc.data().displayName)
-            })
-        }
-    }, [currentUser])
-
-    useEffect(() => {
-        blogs.sort((a,b) => {
-          return b.timeCreated - a.timeCreated;
-        })
-      }, [blogs])
+    const {blogs, loading, statusHandler, filteredBlogs, status} = useContext(BlogContext)
+    const theme = useTheme();
+    const isSmall = useMediaQuery(theme.breakpoints.down('xs'));
 
     const useStyles = makeStyles({
-        hero: {
-            height: `100vh`,
-            backgroundImage: `url(${Hero})`,
-            backgroundSize: 'cover',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            paddingBottom: 64,
+        topicBar: {
+            background: 'none',
+            boxShadow: 'none',
+            color: 'black',
+            fontWeight: '500'
+        },
+        override: {
+            paddingLeft: 0,
+            paddingRight: 0,
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
         },
         card: {
           marginTop: 20,
           marginBottom: 20,
-        },
-        title: {
-          fontSize: 14,
-        },
-        pos: {
-          marginBottom: 12,
+          color: 'black',
         },
         bold: {
-            fontWeight: 'bold'
-        },
-        blogTitle: {
+            fontWeight: 'bold',
             textTransform: 'uppercase'
+        },
+        active: {
+            borderBottom: '2px solid black',
+            cursor: 'pointer'
+        },
+        filterItem: {
+            cursor: 'pointer'
+        },
+        topic: {
+            paddingLeft: 0,
+            paddingRight: 0,
+            paddingTop: 14,
+            paddingBottom: 6,
+            borderTop: '4px solid black',
+            display: 'inline-block',
+            textTransform: 'uppercase',
+            fontWeight: '500'
         }
-      });
+    });
 
-      const classes = useStyles();
+    const classes = useStyles();
+
+    const dateSorter = () => {
+        blogs.sort((a,b) => {
+            return b.timeCreated - a.timeCreated
+          })
+    }
+
+    useEffect(() => {
+        dateSorter()
+    }, [blogs])
 
     if (loading) {
         return <Loader />
     }
 
     return (
-            <Grid container alignItems="flex-end">
-                <Grid container alignItems="center" justify="center" className={classes.hero} item xs={10} md={12}>
-                    <Box my={7} textAlign={{xs: 'center'}}>
-                            <Typography gutterBottom variant="h2" className={classes.bold}>Welcome to Story!</Typography>
-                            <Typography variant="p">Share your stories with people from around the world!</Typography>
-                        <Box mt={4}>
-                        <Link to="/create"><Button variant="contained" size="medium" color="primary">Create</Button></Link>
+        <Container>
+            <Box mb={8}>
+                <Grid container justify="center">
+                    <Hidden xsDown>
+                        <Grid item sm={10} md={10} lg={12}>
+                        <Box my={2}>
+                            <AppBar className={classes.topicBar} position="static">
+                                <Toolbar className={classes.override}>
+                                <li className={`${status === "all" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("all")}}>ALL</li>
+                                <li className={`${status === "Travel" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Travel")}}>TRAVEL</li>
+                                <li className={`${status === "Health" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Health")}}>HEALTH</li>
+                                <li className={`${status === "Lifestyle" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Lifestyle")}}>LIFESTYLE</li>
+                                <li className={`${status === "Food" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Food")}}>FOOD</li>
+                                <li className={`${status === "Sports" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Sports")}}>SPORTS</li>
+                                <li className={`${status === "Self-Improvement" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Self-Improvement")}}>SELF-IMPROVEMENT</li>
+                                </Toolbar>
+                            </AppBar>
                         </Box>
-                    </Box>
+                        </Grid>
+                    </Hidden>
                 </Grid>
-                {/* <Grid item md={4}>
-                    <Box my={10} textAlign="center">
-                    <Card variant="outlined">
-                        <Avatar style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 30}}></Avatar>
-                        <CardContent>
-                            <Typography gutterBottom variant="h5" component="h2">{currentUser ? `Welcome, ${display}!` : "Not logged in"}</Typography>
-                            <Typography variant="body2" component="p" colo="textSecondary">Your posts:</Typography>
-                        </CardContent>
-                    </Card>
-                    </Box>
-                </Grid> */}
-                <Grid item md={12}>
-                <Box textAlign={{xs: 'center', sm:'left'}}>
-                    <div><h1>Recent Posts</h1></div>
-                    </Box>
-                </Grid>
-                <Grid container>
-                {blogs.slice(0,3).map(blog => (
-                    <Grid item container justify="space-between" md={4}>
-                        <Card variant="outlined" className={classes.card} key={blog.id}>
-                            <CardActionArea>
-                                <Link to={{
-                                    pathname: `/blogs/${blog.id}`
-                                }}>
+                <Grid container justify="center" spacing={isSmall ? 3 : 6}>
+                    {filteredBlogs.map(blog => (
+                        <Grid item container className="blog-card" justify="space-between" xs={11} sm={10} md={5} lg={6} key={blog.id}>
+                            <Link to={{
+                                pathname: `/blogs/${blog.id}`,
+                                state: {blog} }}>
                                 <CardMedia
                                     component="img"
-                                    height="140"
+                                    height="260"
+                                    className={classes.card}
                                     src={blog.url}
-                                />
-                                <CardContent className={classes.blogTitle}>
-                                <Typography className={classes.bold} variant="h5" component="h2">{blog.name}</Typography>
-                                <Typography variant="body2" component="p" colo="textSecondary">{blog.desc}</Typography>
-                                </CardContent>
-                                </Link>
-                                </CardActionArea>
-                        </Card>
-                    </Grid>
-                ))}
+                                />                                
+                                <Typography className={classes.topic} variant="subtitle1" component="h2"><span>{blog.topic}</span></Typography>
+                                <Typography className={classes.bold} variant="h5">{blog.name}</Typography>
+                                <Typography variant="subtitle2">{blog.dateCreated} by {blog.display}</Typography>
+                            </Link>
+                        </Grid>
+                        
+                    ))}
                 </Grid>
-                </Grid>
+            </Box>
+            <Box mb={3}>
+                <Footer/>
+            </Box>
+        </Container>
     )
 }
 

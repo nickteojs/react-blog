@@ -1,16 +1,44 @@
 import {Link, useHistory} from 'react-router-dom'
 import {useState, useEffect} from 'react'
 import {useAuth} from '../context/AuthContext'
-import {AppBar, Toolbar, Typography, Button, Container, Box} from '@material-ui/core'
+import {AppBar, Toolbar, Typography, Button, Container, Box, useTheme, useMediaQuery, Grid} from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
+import SideDrawer from './SideDrawer'
 import firebase from '../firebase'
-
-const ref = firebase.firestore().collection("users");
 
 const Navigation = () => {
     const history = useHistory();
     const {currentUser, logoutHandler} = useAuth()
     const [display, setDisplay] = useState()
+    const ref = firebase.firestore().collection("users");
+    const theme = useTheme();
+    const isSmall = useMediaQuery(theme.breakpoints.down('xs'));
+    
+    const useStyles = makeStyles((theme) => ({
+        navbar: {
+            background: '#F5F5F5',
+            boxShadow: 'none',
+            color: 'black',
+            marginTop: 60,
+        },
+        title: {
+          flexGrow: 1,
+          ...theme.typography.title,
+          color: 'black'
+        },
+        navItem: {
+            color: 'black',
+            textTransform: 'none',
+            fontWeight: 'bold'
+        },
+        override: {
+            paddingLeft: 0,
+            paddingRight: 0
+        }
+    }));
+
+    const classes = useStyles();
+
     const eventHandler = () => {
         logoutHandler(history);
     }
@@ -22,66 +50,32 @@ const Navigation = () => {
             })
         }
     }, [currentUser])
-    
-
-    const useStyles = makeStyles((theme) => ({
-        root: {
-          flexGrow: 1,
-        },
-        navbar: {
-            background: 'transparent',
-            boxShadow: 'none'
-        },
-        menuButton: {
-          marginRight: theme.spacing(2),
-        },
-        title: {
-          flexGrow: 1,
-          ...theme.typography.title,
-          color: 'primary'
-        },
-        navItem: {
-            color: 'black',
-            textTransform: 'none',
-            fontWeight: 'bold'
-        },
-        override: {
-            paddingLeft: 0,
-            paddingRight: 0
-        }
-
-    }));
-
-    const classes = useStyles();
 
     return (
-        <div className={classes.root}>
-            <AppBar className={classes.navbar} position="absolute">
-                <Container>
-                <Toolbar className={classes.override}>
-                <Typography variant="h4" color="primary" className={classes.title}>
-                    Story
-                </Typography>
-                <div className="nav-items">
-                    <Link to ="/"><Button className={classes.navItem} color="inherit">Home</Button></Link>
-                    <Link to ="/blogs"><Button className={classes.navItem} color="inherit">Blogs</Button></Link>
-                    {!currentUser && <Link to ="/login"><Button className={classes.navItem} color="inherit">Login</Button></Link>}
-                    {currentUser && 
-                       <Button className={classes.navItem} onClick={eventHandler}>Logout</Button>
-                    }
-                    {currentUser && 
-                        <Link to ="/create"><Button className={classes.navItem}>Create</Button></Link>
-                    }
-                    {currentUser &&
-                    <Box mx={2}>
-                        <Typography variant="body2">
-                        Welcome, {display}!
-                      </Typography>
-                    </Box> 
-                    }
-                </div>
-                </Toolbar>
-                </Container>
+        <div>
+            <AppBar className={classes.navbar} position="static">
+                <Grid container justify="center">
+                    <Grid item xs={11} sm={10} lg={12}>
+                        <Container>
+                            <Box borderBottom={4}>
+                                <Toolbar className={classes.override}>
+                                    <Typography gutterBottom variant="h3" color="primary" className={classes.title}>
+                                        <Link to="/">Story</Link>
+                                    </Typography>
+                                    {isSmall ? <SideDrawer display={display} currentUser={currentUser} logout={eventHandler}/> : 
+                                        <div className="nav-items">
+                                            <Link to ="/"><Button className={classes.navItem} color="inherit">Home</Button></Link>
+                                            {!currentUser && <Link to ="/login"><Button className={classes.navItem} color="inherit">Login</Button></Link>}
+                                            {currentUser && <Button className={classes.navItem} onClick={eventHandler}>Logout</Button>}
+                                            <Link to ="/create"><Button className={classes.navItem}>Create</Button></Link>
+                                            {currentUser && <Box mx={2}><Typography variant="body2">Welcome, {display}!</Typography></Box>}
+                                        </div>
+                                    }
+                                </Toolbar>
+                            </Box>
+                        </Container>
+                    </Grid>
+                </Grid>
             </AppBar>
         </div>
     )

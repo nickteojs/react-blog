@@ -1,10 +1,10 @@
 import React, {useState, useEffect, useContext} from 'react'
 import firebase from '../firebase'
-import { useParams, Redirect, useHistory } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import Loader from '../components/Loader'
 import {useAuth} from '../context/AuthContext'
 import {BlogContext} from '../context/BlogContext'
-import {Button, TextField, Link, Box, Container, Typography, Modal} from '@material-ui/core';
+import {Button, TextField, Box, Container, Typography, Modal, Grid} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import FlashMessage from './FlashMessage'
 
@@ -15,49 +15,44 @@ const EditBlog = ({blog}) => {
     const [content, setContent] = useState('')
     const [author, setAuthor] = useState('')
     const [loading, setLoading] = useState(true)
+    const [editLoad, setEditLoad] = useState(false)
     const {currentUser} = useAuth()
     const [open, setOpen] = useState(false)
-    const {editBlog, error, success} = useContext(BlogContext)
+    const {editBlog, error} = useContext(BlogContext)
+    const [fetchError, setFetchError] = useState('')
     let {id} = useParams();
     const ref = firebase.firestore().collection("blogs").doc(id);
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
+        setEditLoad(true)
         const editedBlog = {...blog, name, desc, content}
-        editBlog(editedBlog);
+        await editBlog(editedBlog, history);
         setOpen(false)
-        console.log("Triggered")
+        setEditLoad(false)
     }
 
     const useStyles = makeStyles((theme) => ({
-        paper: {
-          position: 'absolute',
-          width: 400,
-          left: '50%',
-          marginLeft: -200,
-          backgroundColor: theme.palette.background.paper,
-          border: '2px solid #000',
-          boxShadow: theme.shadows[5],
-          padding: theme.spacing(3, 4, 3),
+        modal: {
+            position: 'absolute',
+            width: 250,
+            left: '50%',
+            top: '50%',
+            marginTop: -100,
+            marginLeft: -150,
+            backgroundColor: 'white',
+            border: '2px solid #000',
+            boxShadow: theme.shadows[5],
+            padding: theme.spacing(3, 4, 3),
         },
-        paper2: {
-            marginTop: theme.spacing(8),
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          },
-          avatar: {
-            margin: theme.spacing(1),
-            backgroundColor: theme.palette.secondary.main,
-          },
-          form: {
-            width: '100%', // Fix IE 11 issue.
-            marginTop: theme.spacing(1),
-          },
-          submit: {
+        submit: {
             margin: theme.spacing(3, 0, 2),
-          },
-      }));
+            textTransform: 'none'
+        },
+        button: {
+            margin: 5
+        }
+    }));
 
     const classes = useStyles();
 
@@ -87,8 +82,9 @@ const EditBlog = ({blog}) => {
                 authChecker()
             }
         }
-        catch (error) {
-            console.log("Error getting document:", error);
+        catch(error) {
+            setLoading(false)
+            setFetchError(error)
         }
     }
 
@@ -109,78 +105,90 @@ const EditBlog = ({blog}) => {
     };
 
     const modalBody = (
-        <div className={classes.paper}>
-            <Typography align="center">
-            <h2 id="simple-modal-title">Confirm changes?</h2>
-            </Typography>
-            <Button variant="contained" color="primary" onClick={onSubmit}>Yes</Button>
-            <Button variant="contained" color="secondary" onClick={handleClose}>No</Button>
+        <div className={classes.modal}>
+            <Grid container justify="center" spacing={2}>
+                <Grid item md={12}>
+                <Typography align="center">
+                <h2 id="simple-modal-title">Confirm changes?</h2>
+                </Typography>
+                </Grid>
+                <Grid item>
+                <Button className={classes.button} variant="contained" color="primary" onClick={onSubmit}>Yes</Button>
+                <Button className={classes.button} variant="contained" color="secondary" onClick={handleClose}>No</Button>
+                </Grid>
+            </Grid>
         </div>
     )
 
     return (
         <Container>
-            <form>
-                <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Post Name"
-                        type="text"
-                        value={name}
-                        autoFocus
-                        disabled={currentUser.email !== author}
-                        onChange = {(e) => setName(e.target.value)}
-                        >
-                    </TextField>
-                <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Post Description"
-                        type="text"
-                        value={desc}
-                        autoFocus
-                        disabled={currentUser.email !== author}
-                        onChange = {(e) => setDesc(e.target.value)}
-                        >
-                    </TextField>
-                <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Post Content"
-                        type="text"
-                        value={content}
-                        autoFocus
-                        multiline
-                        disabled={currentUser.email !== author}
-                        onChange = {(e) => setContent(e.target.value)}
-                        >
-                    </TextField>
-                    <Button
-                        alignItems="center" 
-                        variant="contained" 
-                        color="primary" 
-                        disabled={loading}
-                        className={classes.submit} 
-                        onClick={handleOpen}>
-                        Save changes!
-                    </Button>            
-                    </form>
+            <Grid container justify="center">
+                <Grid item xs={11} sm={10} md={10} lg={12}>
+                    <Box my={4}>
+                        <form>
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                label="Post Name"
+                                type="text"
+                                value={name}
+                                autoFocus
+                                disabled={currentUser.email !== author}
+                                onChange = {(e) => setName(e.target.value)}
+                                >
+                            </TextField>
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                label="Post Description"
+                                type="text"
+                                value={desc}
+                                autoFocus
+                                disabled={currentUser.email !== author}
+                                onChange = {(e) => setDesc(e.target.value)}
+                                >
+                            </TextField>
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                label="Post Content"
+                                type="text"
+                                value={content}
+                                autoFocus
+                                multiline
+                                disabled={currentUser.email !== author}
+                                onChange = {(e) => setContent(e.target.value)}
+                                >
+                            </TextField>
+                            <Button
+                                alignItems="center" 
+                                variant="contained" 
+                                color="primary" 
+                                disabled={editLoad}
+                                className={classes.submit} 
+                                onClick={handleOpen}>
+                                Save changes!
+                            </Button>            
+                        </form>
+                    </Box>
+                </Grid>
+            </Grid>
             <Modal
                 open={open}
                 onClose={handleClose}
                 aria-labelledby="simple-modal-title"
                 aria-describedby="simple-modal-description"
             >
-            {modalBody}
+                {modalBody}
             </Modal>
-            {success ? <FlashMessage message={success} success={success} /> : null}
             {error ? <FlashMessage message={error} error={error}/> : null}
+            {fetchError ? <FlashMessage message={fetchError} error={fetchError}/> : null}
         </Container>
     )
 }

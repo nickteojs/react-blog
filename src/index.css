@@ -5,6 +5,11 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Pattaya&display=swap');
 
+html {
+  background: #F5F5F5;
+  overflow-y: scroll;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
@@ -24,140 +29,27 @@ li {
 
 a {
   text-decoration: none;
+  color: black;
 }
 
 a:visited {
   text-decoration: none;
+  color: black;
 }
 
-.container {
-  max-width: 1280px;
+.blog-card {
+  transition: 0.25s ease-in-out all;
+  display: initial;
 }
 
-nav {
-  display: flex;
-  justify-content: space-between;
-  background: rgb(36, 36, 36);
-}
-
-.navbar-title {
-  padding: 1em;
+.blog-card:hover {
+  transform: scale(1.01);
 }
 
 .nav-items {
   display: flex;
   align-items: center;
 }
-
-nav ul li a {
-  margin: 1.5em;
-}
-
-.card {
-  width: 50%;
-  height: auto;
-  border: 1px solid black;
-  border-radius: 10px;
-  margin: 1em auto;
-  display: flex;
-  justify-content: center;
-}
-
-.form-control {
-  display: flex;
-  margin: 0 auto;
-}
-
-.blog {
-  width: 50%;
-  height: auto;
-  border: 1px solid black;
-  border-radius: 10px;
-  margin: 1em auto;
-}
-
-.blog-invidivual {
-  color: black;
-  background-color: lightblue;
-}
-
-.blog-preview {
-  width: 50%;
-  height: auto;
-  border: 1px solid black;
-  border-radius: 10px;
-  margin: 1em auto;
-  display: flex;
-  padding: 0.5em;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.text-center {
-  text-align: center;
-  margin: 1em auto;
-}
-
-.btn {
-  width: auto;
-  min-height: 20px;
-  background: rgb(36, 36, 36);
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-size: 1rem;
-  padding: 0.75em 1.25em;
-  margin: 1em auto;
-  cursor: pointer;
-  display: flex;
-}
-
-.alert-error {
-  width: auto;
-  display: inline-block;
-  padding: 1em;
-  border-radius: 10px;
-  background: rgb(255, 133, 133);
-  color: white;
-  margin: 0 auto;
-}
-
-.alert-success {
-  width: auto;
-  display: inline-block;
-  padding: 1em;
-  border-radius: 10px;
-  background: rgb(133, 255, 174);
-  color: white;
-  margin: 0 auto;
-}
-
-/* Form Styling */
-form {
-  width: 80%;
-  margin: 3em auto;
-}
-
-.form-control {
-  border: none;
-  background: rgb(240, 240, 240);
-  height: 25px;
-  padding: 0.2em;
-  width: 100%;
-  margin-bottom: 1.2em;
-}
-
-.thumbnail {
-  width: 100%;
-  height: 500px;
-  object-fit: cover;
-  margin-bottom: 1.2em;
-}
-
-/* .form-control-textarea {
-  height: 500px;
-} */
-
 
 /* Loader */
 
