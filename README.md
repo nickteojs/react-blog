@@ -1,6 +1,6 @@
 # React-Blog
 
-This is a blog application built on React, Context API, using Firebase as backend.
+This is a blog application built on React, Context API, Material UI, and Firebase for the backend.
 
 View working demo:
 https://nickteo-tasky-bcfee8.netlify.app/
