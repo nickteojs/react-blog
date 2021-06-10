@@ -7,6 +7,8 @@ https://react-blog-698ba.web.app/
 
 ## Installation
 
+Adjust the necessary keys in `firebase.js` to connect to your own Firebase database.
+
 In the project directory, run:
 ### `npm install`
 
