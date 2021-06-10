@@ -55,10 +55,14 @@ const Blog = (props) => {
         },
         content: {
             whiteSpace: 'pre-wrap',
-            lineHeight: '1.6'
+            lineHeight: '1.6',
+            [theme.breakpoints.down('sm')]: {
+                fontSize: 15,
+            },
         },
         description: {
-            fontStyle: 'italic'
+            fontStyle: 'italic',
+            marginBottom: 16
         },
         button: {
             marginRight: 10,
@@ -94,8 +98,10 @@ const Blog = (props) => {
         },
         title: {
             [theme.breakpoints.down('sm')]: {
-                fontSize: '2rem',
+                fontSize: '1.6rem',
               },
+            fontWeight: 'bold',
+            marginBottom: 20
         }
       }));
 
@@ -192,11 +198,10 @@ const Blog = (props) => {
                         <CardMedia>
                             <img src={image} className={`${isSmall ? `${classes.mobileBlogThumbnail}` : `${classes.blogThumbnail}`}`} alt=""/>
                         </CardMedia>
-                        <Typography className={classes.title} gutterBottom variant="h3">{name}</Typography>
-                        <Typography gutterBottom variant="h6">{topic}</Typography>
+                        <Typography gutterBottom className={classes.title}  variant="h3">{name}</Typography>
                         <Typography gutterBottom className={classes.description}>{desc}</Typography>
-                        <Typography variant="overline">{dateCreated} by {display}</Typography>
-                        <Box mt={2} mb={4}>
+                        <Typography variant="overline">{dateCreated} by {display} - {topic}.</Typography>
+                        <Box mt={2} mb={isSmall ? 2 : 4}>
                             <Typography className={classes.content} variant="body1">{content}</Typography>
                         </Box>
                         {currentUser && currentUser.email === author ? 
