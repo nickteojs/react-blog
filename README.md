@@ -3,7 +3,7 @@
 This is a blog application built on React, Context API, Material UI, and Firebase for the backend.
 
 View working demo:
-https://nickteo-tasky-bcfee8.netlify.app/
+https://react-blog-698ba.web.app/
 
 ## Installation
 
