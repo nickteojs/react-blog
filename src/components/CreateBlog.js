@@ -183,7 +183,7 @@ const CreateBlog = () => {
                 </Grid>
             </Grid>
             {error ? <FlashMessage message={error} error={error}/> : null}
-            <Box mt={12}>
+            <Box mt={6}>
                 <Footer/>
             </Box>
         </Container>

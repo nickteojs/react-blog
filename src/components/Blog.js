@@ -7,6 +7,7 @@ import Loader from './Loader'
 import { makeStyles } from '@material-ui/core/styles';
 import {Container, Grid, Card, CardContent, CardMedia, Typography, Box, Button, Modal, Avatar, Hidden, useTheme, useMediaQuery} from '@material-ui/core'
 import FlashMessage from './FlashMessage'
+import Footer from './Footer'
 
 const Blog = (props) => {
     // States - Blog Content
@@ -37,6 +38,7 @@ const Blog = (props) => {
     const ref = firebase.firestore().collection("blogs").doc(id);
     const theme = useTheme();
     const isMedium = useMediaQuery(theme.breakpoints.down('md'));
+    const isSmall = useMediaQuery(theme.breakpoints.down('xs'));
 
     const useStyles = makeStyles((theme) => ({
         modal: {
@@ -65,6 +67,12 @@ const Blog = (props) => {
         blogThumbnail: {
             width: '100%',
             height: 500,
+            objectFit: 'cover',
+            marginBottom: '1.2em'
+        },
+        mobileBlogThumbnail: {
+            width: '100%',
+            height: 250,
             objectFit: 'cover',
             marginBottom: '1.2em'
         },
@@ -143,6 +151,11 @@ const Blog = (props) => {
         setOpen(false);
     };
 
+    const scrollTop = () => {
+        document.body.scrollTop = 0
+        document.documentElement.scrollTop = 0
+    }
+
     useEffect(() => {
         blogFetcher();
     }, [props.match.params.id])
@@ -173,11 +186,11 @@ const Blog = (props) => {
 
     return (
         <Container>
-            <Box my={8}>
+            <Box mt={isSmall ? 4 : 8}>
                 <Grid container justify="center" spacing={isMedium ? 0 : 8}>
                     <Grid item xs={11} sm={10} md={10} lg={8}>
                         <CardMedia>
-                            <img src={image} className={classes.blogThumbnail} alt=""/>
+                            <img src={image} className={`${isSmall ? `${classes.mobileBlogThumbnail}` : `${classes.blogThumbnail}`}`} alt=""/>
                         </CardMedia>
                         <Typography className={classes.title} gutterBottom variant="h3">{name}</Typography>
                         <Typography gutterBottom variant="h6">{topic}</Typography>
@@ -240,7 +253,7 @@ const Blog = (props) => {
                             <Typography gutterBottom className={classes.otherTitle}>OTHER POSTS</Typography>
                             {otherBlogs.map(blog => (
                                 <Grid container spacing={2} alignItems="center" key={blog.id}>
-                                    <Grid item lg={5}>
+                                    <Grid item lg={5} onClick={scrollTop}>
                                         <Link to={{
                                             pathname: `/blogs/${blog.id}`,
                                             state: {blog} }}>                                    
@@ -260,6 +273,9 @@ const Blog = (props) => {
                 </Grid>
             </Box>
         {success ? <FlashMessage message={success} success={success} /> : null}
+        <Box mb={3}>
+            <Footer/>
+        </Box>
         </Container>
     )
 }

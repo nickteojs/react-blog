@@ -38,7 +38,7 @@ const SideDrawer = ({display, currentUser, logout}) => {
             >
                 <List>
                     <Box mt={4}>
-                        <ListItem button>
+                        <ListItem button onClick={() => {statusHandler("all")}}>
                             <ListItemText><Link to="/"><Typography variant="h5" className={classes.title}>Story</Typography></Link></ListItemText>
                         </ListItem>
                     </Box>
@@ -47,18 +47,22 @@ const SideDrawer = ({display, currentUser, logout}) => {
                         <ListItemText>Welcome, {display}!</ListItemText>
                         <Divider/>
                     </ListItem> : null}
-                    <ListItem button>
-                        <ListItemText><Link to="/">Home</Link></ListItemText>
-                    </ListItem>
-                    {!currentUser ? <ListItem button>
-                        <ListItemText><Link to="/login">Login</Link></ListItemText>
-                    </ListItem> : null}
+                    <Link to="/">
+                        <ListItem button onClick={() => {statusHandler("all")}}>
+                            <ListItemText>Home</ListItemText>
+                        </ListItem>
+                    </Link>
+                    {!currentUser ? <Link to="/login"><ListItem button>
+                        <ListItemText>Login</ListItemText>
+                    </ListItem></Link> : null}
                     {currentUser ? <ListItem button>
                         <ListItemText onClick={logout}>Logout</ListItemText>
                     </ListItem> : null}
-                    <ListItem button>
-                        <ListItemText><Link to="/create">Create</Link></ListItemText>
-                    </ListItem>
+                    <Link to="/create">
+                        <ListItem button>
+                            <ListItemText>Create</ListItemText>
+                        </ListItem>
+                    </Link>
                 </List>
                 <Divider/>
                 <List>

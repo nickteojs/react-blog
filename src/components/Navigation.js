@@ -19,7 +19,6 @@ const Navigation = () => {
             background: '#F5F5F5',
             boxShadow: 'none',
             color: 'black',
-            marginTop: 60,
         },
         title: {
           flexGrow: 1,
@@ -52,7 +51,7 @@ const Navigation = () => {
     }, [currentUser])
 
     return (
-        <div>
+        <Box mt={isSmall ? 4 : 7}>
             <AppBar className={classes.navbar} position="static">
                 <Grid container justify="center">
                     <Grid item xs={11} sm={10} lg={12}>
@@ -77,7 +76,7 @@ const Navigation = () => {
                     </Grid>
                 </Grid>
             </AppBar>
-        </div>
+        </Box>
     )
 }
 

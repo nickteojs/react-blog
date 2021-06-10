@@ -71,7 +71,7 @@ const RecentBlogs = () => {
 
     return (
         <Container>
-            <Box mb={8}>
+            <Box mb={8} mt={isSmall ? 2 : 0}>
                 <Grid container justify="center">
                     <Hidden xsDown>
                         <Grid item sm={10} md={10} lg={12}>

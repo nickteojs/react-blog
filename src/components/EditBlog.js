@@ -7,6 +7,7 @@ import {BlogContext} from '../context/BlogContext'
 import {Button, TextField, Box, Container, Typography, Modal, Grid} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import FlashMessage from './FlashMessage'
+import Footer from './Footer'
 
 const EditBlog = ({blog}) => {
     const history = useHistory()
@@ -189,6 +190,9 @@ const EditBlog = ({blog}) => {
             </Modal>
             {error ? <FlashMessage message={error} error={error}/> : null}
             {fetchError ? <FlashMessage message={fetchError} error={fetchError}/> : null}
+            <Box mb={3}>
+                <Footer/>
+            </Box>
         </Container>
     )
 }

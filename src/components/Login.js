@@ -2,7 +2,7 @@ import React, {useRef} from 'react'
 import {useAuth} from '../context/AuthContext'
 import {useHistory, Redirect} from 'react-router-dom'
 import FlashMessage from './FlashMessage'
-import {Button, TextField, Link, Box, Container, Typography} from '@material-ui/core';
+import {Button, TextField, Link, Box, Container, Typography, Grid} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Footer from './Footer'
 
@@ -41,48 +41,52 @@ const Login = () => {
 
     return (
         <Container maxWidth="xs">
-            <div className={classes.root}>
-                <Typography gutterBottom variant="h3">Sign in!</Typography>            
-                <form className={classes.form} onSubmit={submitHandler}>
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="E-mail"
-                        type="email"
-                        inputRef={emailRef}
-                        autoFocus
-                        >
-                    </TextField>
-                    <TextField
-                        variant="outlined"
-                        margin="normal"
-                        required
-                        fullWidth
-                        label="Password"
-                        type="password"
-                        inputRef={passwordRef}
-                        >
-                    </TextField>
-                    <Button 
-                        fullWidth 
-                        variant="contained" 
-                        className={classes.submit} 
-                        disabled={loading} 
-                        type="submit">
-                        Login
-                    </Button>
-                    <Typography align="center">
-                        <Link href="/register" variant="body2">
-                            Don't have an account? Sign up!
-                        </Link>
-                    </Typography>
-                    <Box mt={6}>
-                        <Footer/>
-                    </Box>
-                </form>
-            </div>
+            <Grid container justify="center">
+                <Grid item xs={11} sm={12}>
+                    <div className={classes.root}>
+                        <Typography gutterBottom variant="h3">Sign in!</Typography>            
+                        <form className={classes.form} onSubmit={submitHandler}>
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                label="E-mail"
+                                type="email"
+                                inputRef={emailRef}
+                                autoFocus
+                                >
+                            </TextField>
+                            <TextField
+                                variant="outlined"
+                                margin="normal"
+                                required
+                                fullWidth
+                                label="Password"
+                                type="password"
+                                inputRef={passwordRef}
+                                >
+                            </TextField>
+                            <Button 
+                                fullWidth 
+                                variant="contained" 
+                                className={classes.submit} 
+                                disabled={loading} 
+                                type="submit">
+                                Login
+                            </Button>
+                            <Typography align="center">
+                                <Link href="/register" variant="body2">
+                                    Don't have an account? Sign up!
+                                </Link>
+                            </Typography>
+                            <Box mt={6}>
+                                <Footer/>
+                            </Box>
+                        </form>
+                    </div>
+                </Grid>
+            </Grid>
             {error ? <FlashMessage message={error} error={error}/> : null}
         </Container>
     )
