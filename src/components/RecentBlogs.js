@@ -94,19 +94,21 @@ const RecentBlogs = () => {
                 <Grid container justify="center" spacing={isSmall ? 3 : 6}>
                     {filteredBlogs.map(blog => (
                         <Grid item container className="blog-card" justify="space-between" xs={11} sm={10} md={5} lg={6} key={blog.id}>
-                            <Link to={{
-                                pathname: `/blogs/${blog.id}`,
-                                state: {blog} }}>
-                                <CardMedia
-                                    component="img"
-                                    height="260"
-                                    className={classes.card}
-                                    src={blog.url}
-                                />                                
-                                <Typography className={classes.topic} variant="subtitle1" component="h2"><span>{blog.topic}</span></Typography>
-                                <Typography className={classes.bold} variant="h5">{blog.name}</Typography>
-                                <Typography variant="subtitle2">{blog.dateCreated} by {blog.display}</Typography>
-                            </Link>
+                            <Box width="100%">
+                                <Link to={{
+                                    pathname: `/blogs/${blog.id}`,
+                                    state: {blog} }}>
+                                    <CardMedia
+                                        component="img"
+                                        height="260"
+                                        className={classes.card}
+                                        src={blog.url}
+                                    />
+                                    <Typography className={classes.topic} variant="subtitle1" component="h2"><span>{blog.topic}</span></Typography>
+                                    <Typography className={classes.bold} variant="h5">{blog.name}</Typography>
+                                    <Typography variant="subtitle2">{blog.dateCreated} by {blog.display}</Typography>
+                                </Link>
+                            </Box>
                         </Grid>
                         
                     ))}
