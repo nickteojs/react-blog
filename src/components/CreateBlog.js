@@ -1,30 +1,28 @@
-import { useState, useContext, useEffect } from 'react'
-import {useAuth} from '../context/AuthContext'
-import {BlogContext} from '../context/BlogContext'
-import {useHistory} from 'react-router-dom'
-import {Button, TextField, InputLabel, Box, Container, Select, MenuItem, Grid} from '@material-ui/core';
+import { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { Button, TextField, InputLabel, Box, Container, Select, MenuItem, Grid, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import FlashMessage from './FlashMessage'
-import firebase from '../firebase'
-import Footer from './Footer'
+import { useDispatch, useSelector } from 'react-redux';
+import { addBlog as addBlogRedux, fetchBlogs } from '../features/blogs/blogsSlice';
+import Footer from './Footer';
+import useAuth from '../authUpdater';
 
 const CreateBlog = () => {
-    const [name, setName] = useState('')
-    const [desc, setDesc] = useState('')
-    const [content, setContent] = useState('')
-    const [display, setDisplay] = useState()
-    const [authBio, setAuthBio] = useState('')
-    const [image, setImage] = useState(null)
-    const [url, setUrl] = useState('')
-    const [topic, setTopic] = useState('')
-    const {currentUser} = useAuth()
-    const [author, setAuthor] = useState(currentUser.email)
-    const {addBlog, error} = useContext(BlogContext)
-    const [loading, setLoading] = useState(false)
-    const history = useHistory()
-    const timeCreated = (new Date()).getTime();
-    const ref = firebase.firestore().collection("users");
-    const storageRef = firebase.storage().ref()
+    // State - Blog Information
+    const [name, setName] = useState('');
+    const [desc, setDesc] = useState('');
+    const [content, setContent] = useState('');
+    const [image, setImage] = useState(null);
+    const [topic, setTopic] = useState('');
+
+    // Redux
+    const dispatch = useDispatch();
+    const { userInfo } = useSelector(state => state.authSlice);
+    const { loading } = useSelector(state => state.blogsSlice);
+    const { bio, displayName, email } = userInfo;
+
+    const history = useHistory();
+    const authUser = useAuth();
 
     const useStyles = makeStyles((theme) => ({
         submit: {
@@ -34,75 +32,41 @@ const CreateBlog = () => {
 
     const classes = useStyles();
 
-    const months = {
-        '1': 'Jan',
-        '2' : 'Feb',
-        '3' : 'Mar',
-        '4' : 'Apr',
-        '5' : 'May',
-        '6' : 'Jun',
-        '7' : 'Jul',
-        '8' : 'Aug',
-        '9' : 'Sep',
-        '10' : 'Oct',
-        '11' : 'Nov',
-        '12' : 'Dec',
+    const setImageFile = e => {
+        setImage(e.target.files[0]);
     }
 
-    let dateCreated = new Date();
-    let dd = dateCreated.getDate();
-    let mm = dateCreated.getMonth()+1;
-    let yy = dateCreated.getFullYear();
-
-    if (dd<10){
-        dd='0'+dd
-    } 
-
-    dateCreated = (`${months[mm]} ${dd}, ${yy}`).toString();
-
-    const onChange = (e) => {
-        setImage(e.target.files[0])
-    }
-
-    const onSubmit = async (e) => {
-        setLoading(true)
+    const onSubmitRedux = e => {
         e.preventDefault();
-        const id = (Math.floor(Math.random() * 10000) + 1).toString();
-        await storageRef.child(image.name).put(image)
-        await storageRef.child(image.name).getDownloadURL()
-            .then(url => {
-                setUrl(url)
-                addBlog({name, desc, content, id, author, timeCreated, dateCreated, display, authBio, url, topic}, history);
-                setLoading(false)
+        dispatch(addBlogRedux({name, desc, content, topic, image, email, bio, displayName}))
+            .then(result => {
+                // Undefined payload = no errors
+                if (result.payload === undefined) {
+                    history.replace("/");
+                    dispatch(fetchBlogs());
+                }
             })
-        setName('');
-        setDesc('');
-        setContent('');
-        setTopic('')
     }
 
+    // Auth Listener to redirect
     useEffect(() => {
-        if (currentUser) {
-            ref.doc(currentUser.uid).get().then(doc => {
-                setDisplay(doc.data().displayName)
-            })
+        if (!authUser) {
+            history.push("/login");
         }
-    }, [currentUser])
+    }, [authUser]);
 
-    useEffect(() => {
-        if (currentUser) {
-            ref.doc(currentUser.uid).get().then(doc => {
-                setAuthBio(doc.data().bioName)
-            })
-        }
-    }, [currentUser])
-
+    if (authUser === "loading") {
+        return <Box pt={4} textAlign="center">
+        <CircularProgress />
+    </Box>
+    }
+    
     return (
         <Container>
-            <Grid container justify="center">
+            <Grid container justifyContent="center">
                 <Grid item xs={11} sm={10} md={10} lg={12}>
                     <Box mt={4}>
-                        <form onSubmit={onSubmit}>
+                        <form onSubmit={onSubmitRedux}>
                             <TextField
                                 variant="outlined"
                                 margin="normal"
@@ -166,23 +130,21 @@ const CreateBlog = () => {
                                     type="file"
                                     accept="image/*"
                                     required
-                                    onChange={onChange}>
+                                    onChange={setImageFile}>
                                 </input>
                             </Box>
                             <Button
-                                alignItems="center" 
                                 variant="contained" 
                                 color="primary" 
                                 disabled={loading}
                                 className={classes.submit} 
                                 type="submit">
-                                {loading ? 'Creating...' : 'CREATE POST!'}
+                                {loading ? <CircularProgress size={20} /> : "Create Post!"}
                             </Button>
                         </form>
                     </Box>
                 </Grid>
             </Grid>
-            {error ? <FlashMessage message={error} error={error}/> : null}
             <Box mt={6}>
                 <Footer/>
             </Box>
@@ -190,4 +152,4 @@ const CreateBlog = () => {
     )
 }
 
-export default CreateBlog
+export default CreateBlog;

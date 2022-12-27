@@ -72,14 +72,14 @@ export const AuthProvider = ({ children }) => {
     }
 
     // Is called whenever we use login/register to set the current user
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            setCurrentUser(user);
-            setLoading(false)
-        })
-        // Unsubscribes from the auth state listener when component unmounts
-        return unsubscribe
-    }, [])
+    // useEffect(() => {
+    //     const unsubscribe = auth.onAuthStateChanged(user => {
+    //         setCurrentUser(user);
+    //         setLoading(false)
+    //     })
+    //     // Unsubscribes from the auth state listener when component unmounts
+    //     return unsubscribe
+    // }, [])
 
     const value = {
         currentUser,

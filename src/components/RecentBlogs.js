@@ -1,15 +1,17 @@
-import React, {useContext, useEffect} from 'react'
-import Loader from './Loader'
-import {Link} from 'react-router-dom'
-import { BlogContext } from '../context/BlogContext'
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import {Box, Container, CardMedia, Grid, Typography, AppBar, Toolbar, Hidden, useTheme, useMediaQuery} from '@material-ui/core'
-import Footer from './Footer'
+import { Box, Container, CardMedia, Grid, Typography, AppBar, Toolbar, Hidden, useTheme, useMediaQuery, CircularProgress } from '@material-ui/core';
+import Footer from './Footer';
+import FilterRows from './FilterRows';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchBlogs, resetFilter } from '../features/blogs/blogsSlice';
 
 const RecentBlogs = () => {
-    const {blogs, loading, statusHandler, filteredBlogs, status} = useContext(BlogContext)
     const theme = useTheme();
     const isSmall = useMediaQuery(theme.breakpoints.down('xs'));
+    const dispatch = useDispatch();
+    const { blogs, loading, recentBlogs } = useSelector(state => state.blogsSlice);
 
     const useStyles = makeStyles({
         topicBar: {
@@ -29,10 +31,10 @@ const RecentBlogs = () => {
           marginTop: 20,
           marginBottom: 20,
           color: 'black',
+          borderRadius: 10,
         },
         bold: {
             fontWeight: 'bold',
-            textTransform: 'uppercase'
         },
         active: {
             borderBottom: '2px solid black',
@@ -49,54 +51,53 @@ const RecentBlogs = () => {
             borderTop: '4px solid black',
             display: 'inline-block',
             textTransform: 'uppercase',
-            fontWeight: '500'
+            fontWeight: 'bold',
         }
     });
 
     const classes = useStyles();
 
-    const dateSorter = () => {
-        blogs.sort((a,b) => {
-            return b.timeCreated - a.timeCreated
-          })
-    }
-
+    // Resets filter at home page, then fetch blogs if they don't exist
     useEffect(() => {
-        dateSorter()
-    }, [blogs])
+        dispatch(resetFilter());
+        if (blogs.length === 0) {
+            dispatch(fetchBlogs());
+        }
+    }, []);
 
     if (loading) {
-        return <Loader />
+        return (
+            <Box pt={4} textAlign="center">
+                <CircularProgress />
+            </Box>
+        )
     }
 
     return (
         <Container>
             <Box mb={8} mt={isSmall ? 2 : 0}>
-                <Grid container justify="center">
+                <Grid container justifyContent="center">
                     <Hidden xsDown>
                         <Grid item sm={10} md={10} lg={12}>
                         <Box my={2}>
                             <AppBar className={classes.topicBar} position="static">
                                 <Toolbar className={classes.override}>
-                                <li className={`${status === "all" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("all")}}>ALL</li>
-                                <li className={`${status === "Travel" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Travel")}}>TRAVEL</li>
-                                <li className={`${status === "Health" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Health")}}>HEALTH</li>
-                                <li className={`${status === "Lifestyle" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Lifestyle")}}>LIFESTYLE</li>
-                                <li className={`${status === "Food" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Food")}}>FOOD</li>
-                                <li className={`${status === "Sports" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Sports")}}>SPORTS</li>
-                                <li className={`${status === "Self-Improvement" ? `${classes.active}` : `${classes.filterItem}`}`} onClick={() => {statusHandler("Self-Improvement")}}>SELF-IMPROVEMENT</li>
+                                    <FilterRows />
                                 </Toolbar>
                             </AppBar>
                         </Box>
                         </Grid>
                     </Hidden>
                 </Grid>
-                <Grid container justify="center" spacing={isSmall ? 3 : 6}>
-                    {filteredBlogs.map(blog => (
-                        <Grid item container className="blog-card" justify="space-between" xs={11} sm={10} md={5} lg={6} key={blog.id}>
+                <Box textAlign="center" my={4}>
+                    <Typography gutterBottom variant="h5">Recent Posts</Typography>
+                </Box>            
+                <Grid container justifyContent="center" spacing={isSmall ? 3 : 6}>
+                    {recentBlogs.map(blog => (
+                        <Grid item container className="blog-card" justifyContent="space-between" xs={11} sm={10} md={5} lg={6} key={blog.id}>
                             <Box width="100%">
                                 <Link to={{
-                                    pathname: `/blogs/${blog.id}`,
+                                    pathname: `/blog/${blog.id}`,
                                     state: {blog} }}>
                                     <CardMedia
                                         component="img"
@@ -106,7 +107,7 @@ const RecentBlogs = () => {
                                     />
                                     <Typography className={classes.topic} variant="subtitle1" component="h2"><span>{blog.topic}</span></Typography>
                                     <Typography className={classes.bold} variant="h5">{blog.name}</Typography>
-                                    <Typography variant="subtitle2">{blog.dateCreated} by {blog.display}</Typography>
+                                    <Typography variant="subtitle2">{blog.dateCreated} by {blog.displayName}</Typography>
                                 </Link>
                             </Box>
                         </Grid>
@@ -121,4 +122,4 @@ const RecentBlogs = () => {
     )
 }
 
-export default RecentBlogs
+export default RecentBlogs;

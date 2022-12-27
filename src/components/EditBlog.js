@@ -1,36 +1,58 @@
-import React, {useState, useEffect, useContext} from 'react'
-import firebase from '../firebase'
+import React, { useState, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import Loader from '../components/Loader'
-import {useAuth} from '../context/AuthContext'
-import {BlogContext} from '../context/BlogContext'
-import {Button, TextField, Box, Container, Typography, Modal, Grid} from '@material-ui/core';
+import { Button, TextField, Box, Container, Typography, Modal, Grid, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import FlashMessage from './FlashMessage'
-import Footer from './Footer'
+import Footer from './Footer';
+import { useDispatch, useSelector } from 'react-redux';
+import { editBlog, fetchBlogs, fetchBlogToEdit } from '../features/blogs/blogsSlice';
+import useAuth from '../authUpdater';
 
-const EditBlog = ({blog}) => {
-    const history = useHistory()
+const EditBlog = () => {
     const [name, setName] = useState('');
-    const [desc, setDesc] = useState('')
-    const [content, setContent] = useState('')
-    const [author, setAuthor] = useState('')
-    const [loading, setLoading] = useState(true)
-    const [editLoad, setEditLoad] = useState(false)
-    const {currentUser} = useAuth()
-    const [open, setOpen] = useState(false)
-    const {editBlog, error} = useContext(BlogContext)
-    const [fetchError, setFetchError] = useState('')
-    let {id} = useParams();
-    const ref = firebase.firestore().collection("blogs").doc(id);
+    const [desc, setDesc] = useState('');
+    const [content, setContent] = useState('');
+    const [open, setOpen] = useState(false);
 
-    const onSubmit = async (e) => {
+    const history = useHistory();
+    const authUser = useAuth();
+
+    // Redux
+    const dispatch = useDispatch();
+    const { userInfo } = useSelector(state => state.authSlice);
+    const { blogToEdit, loading } = useSelector(state => state.blogsSlice);
+    let { id } = useParams();
+
+    // Get Blog
+    useEffect(() => {
+        dispatch(fetchBlogToEdit(id));
+    }, []);
+
+    // Set Inputs
+    useEffect(() => {
+        if (Object.keys(blogToEdit) !== 0) {
+            setName(blogToEdit.name);
+            setDesc(blogToEdit.desc);
+            setContent(blogToEdit.content);
+        }
+    }, [loading]);
+
+    // Auth Listener to redirect
+    useEffect(() => {
+        if (Object.keys(authUser).includes("uid") && !loading) {
+            if (authUser.email !== blogToEdit.email) {
+                history.replace("/");
+            }
+        }
+    }, [authUser]);
+    
+    const onSubmit = e => {
         e.preventDefault();
-        setEditLoad(true)
-        const editedBlog = {...blog, name, desc, content}
-        await editBlog(editedBlog, history);
-        setOpen(false)
-        setEditLoad(false)
+        dispatch(editBlog({...blogToEdit, name, desc, content})).then(result => {
+            if (result.payload === undefined) {
+                history.replace(`/blogs/${id}`);
+                dispatch(fetchBlogs());
+            }
+        })
     }
 
     const useStyles = makeStyles((theme) => ({
@@ -46,85 +68,47 @@ const EditBlog = ({blog}) => {
             boxShadow: theme.shadows[5],
             padding: theme.spacing(3, 4, 3),
         },
-        submit: {
-            margin: theme.spacing(3, 0, 2),
-            textTransform: 'none'
-        },
         button: {
-            margin: 5
+            marginTop: 14,
+            marginRight: 10,
+            textTransform: 'none'
         }
     }));
 
     const classes = useStyles();
-
-    const authChecker = () => {
-        console.log("2. Auth Checker", author)
-        if (author) {
-            if (currentUser.email !== author) {
-                history.push("/")
-            }
-        }
-    }
-
-    const inputFiller = (name, desc, content, author) => {
-        setName(name)
-        setDesc(desc)
-        setContent(content)
-        setAuthor(author)
-    }
-
-    const blogFetcher = async () => {
-        try {
-            const doc = await ref.get()
-            if(doc.exists) {
-                setLoading(false)
-                const {content, desc, name, author} = doc.data()
-                inputFiller(name, desc, content, author)
-                authChecker()
-            }
-        }
-        catch(error) {
-            setLoading(false)
-            setFetchError(error)
-        }
-    }
-
-    useEffect(() => {
-        blogFetcher();
-    }, [author])
-
-    if (loading) {
-        return <Loader />
-    }
-
-    const handleOpen = () => {
-        setOpen(true);
-    };
     
-    const handleClose = () => {
-        setOpen(false);
-    };
-
+    const toggleModal = () => {
+        setOpen(!open);
+    }
+    
     const modalBody = (
         <div className={classes.modal}>
-            <Grid container justify="center" spacing={2}>
+            <Grid container justifyContent="center" spacing={2}>
                 <Grid item md={12}>
-                <Typography align="center">
-                <h2 id="simple-modal-title">Confirm changes?</h2>
-                </Typography>
+                    <Typography align="center">
+                        <h2 id="simple-modal-title">Confirm changes?</h2>
+                    </Typography>
                 </Grid>
                 <Grid item>
-                <Button className={classes.button} variant="contained" color="primary" onClick={onSubmit}>Yes</Button>
-                <Button className={classes.button} variant="contained" color="secondary" onClick={handleClose}>No</Button>
+                    <Button className={classes.button} variant="contained" color="primary" onClick={onSubmit}>
+                        {loading ? <CircularProgress size={20} /> : "Yes"}
+                    </Button>
+                    <Button className={classes.button} variant="contained" color="secondary" onClick={toggleModal}>No</Button>
                 </Grid>
             </Grid>
         </div>
-    )
+    ) 
+
+    if (loading || Boolean(authUser === false)) {
+        return <Box pt={4} textAlign="center">
+        <CircularProgress />
+    </Box>
+    }
 
     return (
         <Container>
-            <Grid container justify="center">
-                <Grid item xs={11} sm={10} md={10} lg={12}>
+            <Grid container justifyContent="center">
+                {!loading && <Grid item xs={11} sm={10} md={10} lg={12}>
                     <Box my={4}>
                         <form>
                             <TextField
@@ -134,9 +118,9 @@ const EditBlog = ({blog}) => {
                                 fullWidth
                                 label="Post Name"
                                 type="text"
-                                value={name}
+                                value={name ? name : ""}
                                 autoFocus
-                                disabled={currentUser.email !== author}
+                                disabled={userInfo.email !== blogToEdit.email}
                                 onChange = {(e) => setName(e.target.value)}
                                 >
                             </TextField>
@@ -147,9 +131,8 @@ const EditBlog = ({blog}) => {
                                 fullWidth
                                 label="Post Description"
                                 type="text"
-                                value={desc}
-                                autoFocus
-                                disabled={currentUser.email !== author}
+                                value={desc ? desc : ""}
+                                disabled={userInfo.email !== blogToEdit.email}
                                 onChange = {(e) => setDesc(e.target.value)}
                                 >
                             </TextField>
@@ -160,36 +143,40 @@ const EditBlog = ({blog}) => {
                                 fullWidth
                                 label="Post Content"
                                 type="text"
-                                value={content}
-                                autoFocus
+                                value={content ? content : ""}
                                 multiline
-                                disabled={currentUser.email !== author}
+                                disabled={userInfo.email !== blogToEdit.email}
                                 onChange = {(e) => setContent(e.target.value)}
                                 >
                             </TextField>
                             <Button
-                                alignItems="center" 
                                 variant="contained" 
                                 color="primary" 
-                                disabled={editLoad}
-                                className={classes.submit} 
-                                onClick={handleOpen}>
-                                Save changes!
-                            </Button>            
+                                disabled={loading}
+                                className={classes.button} 
+                                onClick={toggleModal}>
+                                Save changes
+                            </Button>
+                            <Button
+                                variant="contained" 
+                                color="secondary" 
+                                disabled={loading}
+                                className={classes.button} 
+                                onClick={history.goBack}>
+                                Return
+                            </Button>
                         </form>
                     </Box>
-                </Grid>
+                </Grid>}
             </Grid>
             <Modal
                 open={open}
-                onClose={handleClose}
+                onClose={toggleModal}
                 aria-labelledby="simple-modal-title"
                 aria-describedby="simple-modal-description"
             >
                 {modalBody}
             </Modal>
-            {error ? <FlashMessage message={error} error={error}/> : null}
-            {fetchError ? <FlashMessage message={fetchError} error={fetchError}/> : null}
             <Box mb={3}>
                 <Footer/>
             </Box>

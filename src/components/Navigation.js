@@ -1,18 +1,16 @@
-import {Link, useHistory} from 'react-router-dom'
-import {useState, useEffect} from 'react'
-import {useAuth} from '../context/AuthContext'
-import {AppBar, Toolbar, Typography, Button, Container, Box, useTheme, useMediaQuery, Grid} from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
-import SideDrawer from './SideDrawer'
-import firebase from '../firebase'
+import { Link } from 'react-router-dom';
+import {AppBar, Toolbar, Typography, Button, Container, Box, useTheme, useMediaQuery, Grid, CircularProgress } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import SideDrawer from './SideDrawer';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../features/auth/authSlice';
 
 const Navigation = () => {
-    const history = useHistory();
-    const {currentUser, logoutHandler} = useAuth()
-    const [display, setDisplay] = useState()
-    const ref = firebase.firestore().collection("users");
     const theme = useTheme();
     const isSmall = useMediaQuery(theme.breakpoints.down('xs'));
+
+    const { user: currentUser, userInfo, loading } = useSelector(state => state.authSlice);
+    const dispatch = useDispatch();
     
     const useStyles = makeStyles((theme) => ({
         navbar: {
@@ -22,8 +20,8 @@ const Navigation = () => {
         },
         title: {
           flexGrow: 1,
-          ...theme.typography.title,
-          color: 'black'
+          color: 'black',
+          fontFamily: 'Pattaya'
         },
         navItem: {
             color: 'black',
@@ -39,21 +37,13 @@ const Navigation = () => {
     const classes = useStyles();
 
     const eventHandler = () => {
-        logoutHandler(history);
+        dispatch(logout());
     }
-
-    useEffect(() => {
-        if (currentUser) {
-            ref.doc(currentUser.uid).get().then(doc => {
-                setDisplay(doc.data().displayName)
-            })
-        }
-    }, [currentUser])
 
     return (
         <Box mt={isSmall ? 4 : 7}>
             <AppBar className={classes.navbar} position="static">
-                <Grid container justify="center">
+                <Grid container justifyContent="center">
                     <Grid item xs={11} sm={10} lg={12}>
                         <Container>
                             <Box borderBottom={4}>
@@ -61,13 +51,34 @@ const Navigation = () => {
                                     <Typography gutterBottom variant="h3" color="primary" className={classes.title}>
                                         <Link to="/">Story</Link>
                                     </Typography>
-                                    {isSmall ? <SideDrawer display={display} currentUser={currentUser} logout={eventHandler}/> : 
+                                    {isSmall ? <SideDrawer/> :
+                                        loading ? <CircularProgress size={20} /> : 
                                         <div className="nav-items">
-                                            <Link to ="/"><Button className={classes.navItem} color="inherit">Home</Button></Link>
-                                            {!currentUser && <Link to ="/login"><Button className={classes.navItem} color="inherit">Login</Button></Link>}
-                                            {currentUser && <Button className={classes.navItem} onClick={eventHandler}>Logout</Button>}
-                                            <Link to ="/create"><Button className={classes.navItem}>Create</Button></Link>
-                                            {currentUser && <Box mx={2}><Typography variant="body2">Welcome, {display}!</Typography></Box>}
+                                            <Link to="/search">
+                                                <Button className={classes.navItem} color="inherit">
+                                                    Search
+                                                </Button>
+                                            </Link>
+                                            {currentUser !== null ? 
+                                                <Button className={classes.navItem} onClick={eventHandler}>
+                                                    Logout
+                                                </Button> : 
+                                                <Link to="/login">
+                                                    <Button className={classes.navItem} color="inherit">
+                                                        Login
+                                                    </Button>
+                                                </Link>
+                                            }
+                                            <Link to ="/create">
+                                                <Button className={classes.navItem}>
+                                                    Create
+                                                </Button>
+                                            </Link>
+                                            <Box ml={1}>
+                                                <Typography variant="body2">
+                                                    {(Object.keys(userInfo).length !== 0) && `Welcome, ${userInfo.displayName}!`}
+                                                </Typography>
+                                            </Box>
                                         </div>
                                     }
                                 </Toolbar>
@@ -80,4 +91,4 @@ const Navigation = () => {
     )
 }
 
-export default Navigation
+export default Navigation;

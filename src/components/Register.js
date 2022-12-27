@@ -1,18 +1,26 @@
-import React, {useRef} from 'react'
-import {useAuth} from '../context/AuthContext'
-import {useHistory, Redirect} from 'react-router-dom'
-import FlashMessage from './FlashMessage'
-import {Button, TextField, Box, Container, Typography} from '@material-ui/core';
+import React, { useRef, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { Button, TextField, Box, Container, Typography, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import Footer from './Footer'
+import Footer from './Footer';
+import { useDispatch, useSelector } from 'react-redux';
+import { register } from '../features/auth/authSlice';
 
 const Register = () => {
-    const history = useHistory()
-    const emailRef= useRef()
-    const passwordRef= useRef()
-    const displayRef = useRef()
-    const bioRef = useRef()
-    const { registerHandler, error, loading, currentUser } = useAuth()
+    const history = useHistory();
+    const emailRef= useRef();
+    const passwordRef= useRef();
+    const displayRef = useRef();
+    const bioRef = useRef();
+    const dispatch = useDispatch();
+    const { user:currentUser, loading } = useSelector(state => state.authSlice);
+
+    const [registerInfo, setRegisterInfo] = useState({
+        email: '',
+        displayName: '',
+        description: '',
+        password: ''
+    })
 
     const useStyles = makeStyles((theme) => ({
         paper: {
@@ -36,13 +44,20 @@ const Register = () => {
 
     const classes = useStyles();
 
+    const inputHandler = (event, type) => {
+        setRegisterInfo({
+            ...registerInfo,
+            [type]: event.target.value
+        });
+    }
+
     const submitHandler = (e) => {
-        e.preventDefault()
-        registerHandler(emailRef.current.value, passwordRef.current.value, displayRef.current.value, bioRef.current.value, history);
+        e.preventDefault();
+        dispatch(register(registerInfo));
     }
 
     if (currentUser) {
-        return <Redirect to="/"/>
+        history.replace("/");
     }
     
     return (
@@ -59,6 +74,7 @@ const Register = () => {
                         type="email"
                         inputRef={emailRef}
                         autoFocus
+                        onChange={e => inputHandler(e, 'email')}
                         >
                     </TextField>
                     <TextField
@@ -69,6 +85,7 @@ const Register = () => {
                         label="Display Name"
                         type="text"
                         inputRef={displayRef}
+                        onChange={e => inputHandler(e, 'displayName')}
                         >
                     </TextField>
                     <TextField
@@ -79,6 +96,7 @@ const Register = () => {
                         label="Short description about yourself"
                         type="text"
                         inputRef={bioRef}
+                        onChange={e => inputHandler(e, 'description')}
                         >
                     </TextField>
                     <TextField
@@ -90,6 +108,7 @@ const Register = () => {
                         label="Password"
                         type="password"
                         inputRef={passwordRef}
+                        onChange={e => inputHandler(e, 'password')}
                         >
                     </TextField>
                     <Button 
@@ -98,16 +117,15 @@ const Register = () => {
                         className={classes.submit} 
                         disabled={loading} 
                         type="submit">
-                        Register
+                        {loading ? <CircularProgress size={20} /> : "Register"}
                     </Button>
                     <Box mt={6}>
                         <Footer />
                     </Box>
                 </form>
             </div>
-            {error ? <FlashMessage message={error} error={error}/> : null}
         </Container>
     )
 }
 
-export default Register
+export default Register;

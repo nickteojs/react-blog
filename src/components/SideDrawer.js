@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react'
-import {Link} from 'react-router-dom'
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import Divider from '@material-ui/core/Divider';
@@ -7,28 +7,60 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import { List, Box, Typography } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
-import {BlogContext} from '../context/BlogContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { filterBlogs } from '../features/blogs/blogsSlice';
+import { logout } from '../features/auth/authSlice';
 
-const SideDrawer = ({display, currentUser, logout}) => {
-    const [openDrawer, setOpenDrawer] = useState(false)
-    const {statusHandler, status} = useContext(BlogContext)
+const SideDrawer = () => {
+    const [openDrawer, setOpenDrawer] = useState(false);
+    const location = useLocation();
+    const dispatch = useDispatch();
+    const { filterStatus, statuses } = useSelector(state => state.blogsSlice);
+    const { user: currentUser,  userInfo } = useSelector(state => state.authSlice);
 
     const drawerToggler = () => {
-        setOpenDrawer(true)
+        setOpenDrawer(true);
     }
     
     const useStyles = makeStyles((theme) => ({
         title: {
           flexGrow: 1,
-          ...theme.typography.title,
-          color: 'black'
+          color: 'black',
+          fontFamily: 'Pattaya'
         },
         active: {
             fontWeight: 'bold'
         },
+        drawer: {
+            width: 200
+        }
     }));
 
     const classes = useStyles();
+
+    const clickHandler = statusType => {
+        dispatch(filterBlogs({
+            category: statusType,
+            type: "navigate"
+        }))
+        setOpenDrawer(false);
+    }
+
+    const FilterRows = () => {
+        return statuses.map(statusType => (
+            <Link to={statusType === "All" ? '/blogs/all/1' : `/blogs/category/${statusType}/1`} key={statusType}>
+                <ListItem
+                    button
+                    onClick={() => clickHandler(statusType)}>
+                    <ListItemText>
+                        <p className={`${filterStatus === statusType ? `${classes.active}` : ""}`}>
+                            {statusType}
+                        </p>
+                    </ListItemText>
+                </ListItem>
+            </Link>
+        ))
+    }
 
     return (
         <>
@@ -36,62 +68,47 @@ const SideDrawer = ({display, currentUser, logout}) => {
             open={openDrawer}
             onClose={() => setOpenDrawer(false)}
             >
-                <List>
+                <List className={classes.drawer}>
                     <Box mt={4}>
-                        <ListItem button onClick={() => {statusHandler("all")}}>
+                        <ListItem button onClick={() => setOpenDrawer(false)}>
                             <ListItemText><Link to="/"><Typography variant="h5" className={classes.title}>Story</Typography></Link></ListItemText>
                         </ListItem>
                     </Box>
                     <Divider/>
-                    {currentUser ? <ListItem button>
-                        <ListItemText>Welcome, {display}!</ListItemText>
+                    {currentUser !== null && <ListItem button>
+                        <ListItemText>Welcome, {userInfo.displayName}!</ListItemText>
                         <Divider/>
-                    </ListItem> : null}
-                    <Link to="/">
-                        <ListItem button onClick={() => {statusHandler("all")}}>
-                            <ListItemText>Home</ListItemText>
+                    </ListItem>}
+                    {currentUser === null && <Link to="/login"><ListItem button onClick={() => setOpenDrawer(false)}>
+                        <ListItemText>Login</ListItemText>
+                    </ListItem></Link>}
+                    {currentUser !== null && <ListItem button>
+                        <ListItemText onClick={() => dispatch(logout())}>Logout</ListItemText>
+                    </ListItem>}
+                    <Link to="/create">
+                        <ListItem button onClick={() => setOpenDrawer(false)}>
+                            <ListItemText>Create</ListItemText>
                         </ListItem>
                     </Link>
-                    {!currentUser ? <Link to="/login"><ListItem button>
-                        <ListItemText>Login</ListItemText>
-                    </ListItem></Link> : null}
-                    {currentUser ? <ListItem button>
-                        <ListItemText onClick={logout}>Logout</ListItemText>
-                    </ListItem> : null}
-                    <Link to="/create">
-                        <ListItem button>
-                            <ListItemText>Create</ListItemText>
+                    <Link to="/search">
+                        <ListItem button onClick={() => setOpenDrawer(false)}>
+                            <ListItemText>Search</ListItemText>
+                        </ListItem>
+                    </Link>
+                    <Link to="/blogs/all/1">
+                        <ListItem button onClick={() => setOpenDrawer(false)}>
+                            <ListItemText>All Blogs</ListItemText>
                         </ListItem>
                     </Link>
                 </List>
                 <Divider/>
-                <List>
-                    <ListItem button onClick={() => {statusHandler("all")}}>
-                        <ListItemText><p className={`${status === "all" ? `${classes.active}` : ""}`}>All</p></ListItemText>
-                    </ListItem>
-                    <ListItem button onClick={() => {statusHandler("Travel")}}>
-                        <ListItemText><p className={`${status === "Travel" ? `${classes.active}` : ""}`}>Travel</p></ListItemText>
-                    </ListItem>
-                    <ListItem button onClick={() => {statusHandler("Health")}}>
-                        <ListItemText><p className={`${status === "Health" ? `${classes.active}` : ""}`}>Health</p></ListItemText>
-                    </ListItem>
-                    <ListItem button onClick={() => {statusHandler("Lifestyle")}}>
-                        <ListItemText><p className={`${status === "Lifestyle" ? `${classes.active}` : ""}`}>Lifestyle</p></ListItemText>
-                    </ListItem>
-                    <ListItem button onClick={() => {statusHandler("Food")}}>
-                        <ListItemText><p className={`${status === "Food" ? `${classes.active}` : ""}`}>Food</p></ListItemText>
-                    </ListItem>
-                    <ListItem button onClick={() => {statusHandler("Sports")}}>
-                        <ListItemText><p className={`${status === "Sports" ? `${classes.active}` : ""}`}>Sports</p></ListItemText>
-                    </ListItem>
-                    <ListItem button onClick={() => {statusHandler("Self-Improvement")}}>
-                        <ListItemText><p className={`${status === "Self-Improvement" ? `${classes.active}` : ""}`}>Self-Improvement</p></ListItemText>
-                    </ListItem>
-                </List>  
+                {location.pathname === "/" || location.pathname.includes("blogs") ? <List>
+                    <FilterRows />
+                </List>: null}  
             </Drawer>
             <MenuIcon onClick={drawerToggler}/>
         </>
     )
 }
 
-export default SideDrawer
+export default SideDrawer;

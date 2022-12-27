@@ -1,16 +1,23 @@
-import React, {useRef} from 'react'
-import {useAuth} from '../context/AuthContext'
-import {useHistory, Redirect} from 'react-router-dom'
-import FlashMessage from './FlashMessage'
-import {Button, TextField, Link, Box, Container, Typography, Grid} from '@material-ui/core';
+import React, {useEffect, useRef, useState } from 'react';
+import {useHistory, Link} from 'react-router-dom';
+import { Button, TextField, Box, Container, Typography, Grid, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import Footer from './Footer'
+import Footer from './Footer';
+import { login } from '../features/auth/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Login = () => {
-    const history = useHistory()
-    const emailRef= useRef()
-    const passwordRef= useRef()
-    const { loginHandler, error, loading, currentUser } = useAuth()
+    const history = useHistory();
+    const emailRef= useRef();
+    const passwordRef= useRef();
+    const { user, loading } = useSelector(state => state.authSlice);
+
+    const dispatch = useDispatch();
+    
+    const [loginInfo, setLoginInfo] = useState({
+        email: '',
+        password: ''
+    })
     
     const useStyles = makeStyles((theme) => ({
         root: {
@@ -32,16 +39,26 @@ const Login = () => {
 
     const submitHandler = (e) => {
         e.preventDefault()
-        loginHandler(emailRef.current.value, passwordRef.current.value, history);
+        dispatch(login(loginInfo));
     }
 
-    if (currentUser) {
-        return <Redirect to="/"/>
+    const inputHandler = (event, type) => {
+        setLoginInfo({
+            ...loginInfo,
+            [type]: event.target.value
+        });
     }
+
+    // Redirect if logged in
+    useEffect(() => {
+        if (user) {
+            history.replace("/");
+        }
+    }, [user]);
 
     return (
         <Container maxWidth="xs">
-            <Grid container justify="center">
+            <Grid container justifyContent="center">
                 <Grid item xs={11} sm={12}>
                     <div className={classes.root}>
                         <Typography gutterBottom variant="h3">Sign in!</Typography>            
@@ -55,6 +72,7 @@ const Login = () => {
                                 type="email"
                                 inputRef={emailRef}
                                 autoFocus
+                                onChange={e => inputHandler(e, 'email')}
                                 >
                             </TextField>
                             <TextField
@@ -65,6 +83,7 @@ const Login = () => {
                                 label="Password"
                                 type="password"
                                 inputRef={passwordRef}
+                                onChange={e => inputHandler(e, 'password')}
                                 >
                             </TextField>
                             <Button 
@@ -73,10 +92,10 @@ const Login = () => {
                                 className={classes.submit} 
                                 disabled={loading} 
                                 type="submit">
-                                Login
+                                {loading ? <CircularProgress size={20}/> : 'Login'}
                             </Button>
                             <Typography align="center">
-                                <Link href="/register" variant="body2">
+                                <Link to="/register">
                                     Don't have an account? Sign up!
                                 </Link>
                             </Typography>
@@ -87,9 +106,8 @@ const Login = () => {
                     </div>
                 </Grid>
             </Grid>
-            {error ? <FlashMessage message={error} error={error}/> : null}
         </Container>
     )
 }
 
-export default Login
+export default Login;

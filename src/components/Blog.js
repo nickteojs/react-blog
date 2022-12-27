@@ -1,41 +1,25 @@
-import React, {useState, useEffect, useContext} from 'react'
-import {Link, useParams, useHistory} from 'react-router-dom'
-import {useAuth} from '../context/AuthContext'
-import {BlogContext} from '../context/BlogContext'
-import firebase from '../firebase'
-import Loader from './Loader'
+import React, {useState, useEffect } from 'react';
+import {Link, useParams, useHistory} from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
-import {Container, Grid, Card, CardContent, CardMedia, Typography, Box, Button, Modal, Avatar, Hidden, useTheme, useMediaQuery} from '@material-ui/core'
-import FlashMessage from './FlashMessage'
-import Footer from './Footer'
+import { Container, Grid, Card, CardContent, CardMedia, Typography, Box, Button, Modal, Avatar, Hidden, useTheme, useMediaQuery, CircularProgress } from '@material-ui/core';
+import Footer from './Footer';
+import { useSelector, useDispatch } from 'react-redux';
+import { deleteBlog, fetchBlogs, fetchBlogToEdit } from '../features/blogs/blogsSlice';
 
-const Blog = (props) => {
-    // States - Blog Content
-    const [blog, setBlog]= useState()
-    const [image, setImage] = useState('')
-    const [name, setName] = useState('');
-    const [topic, setTopic] = useState('')
-    const [desc, setDesc] = useState('');
-    const [dateCreated, setDateCreated] = useState('')
-    const [display, setDisplay] = useState('')
-    const [content, setContent] = useState('');
-    const [author, setAuthor] = useState('');
-    const [authBio, setAuthBio] = useState('')
-   
+const Blog = () => {
     // States - Functional
-    const [loading, setLoading] = useState(true)
-    const [deleteLoad, setDeleteLoad] = useState(false)
-    const [open, setOpen] = useState(false)
-    const [otherBlogs, setOtherBlogs] = useState([])
+    const [open, setOpen] = useState(false);
+    const [otherBlogs, setOtherBlogs] = useState([]);
+    // Redux
+    const { user, userInfo } = useSelector(state => state.authSlice);
+    const { blogs, loading, recentBlogs, blogToEdit } = useSelector(state => state.blogsSlice);
+    const dispatch = useDispatch();
 
-    // Hooks
-    // Current User to see if edit and delete buttons should be displayed
-    const {currentUser} = useAuth();
-    const {removeBlog, error, blogs, success} = useContext(BlogContext)
-    const history = useHistory()
     // Id to fetch blog from firebase
-    let {id} = useParams()
-    const ref = firebase.firestore().collection("blogs").doc(id);
+    let { id } = useParams();
+    const history = useHistory();
+
+    // Styling
     const theme = useTheme();
     const isMedium = useMediaQuery(theme.breakpoints.down('md'));
     const isSmall = useMediaQuery(theme.breakpoints.down('xs'));
@@ -103,141 +87,118 @@ const Blog = (props) => {
             fontWeight: 'bold',
             marginBottom: 20
         }
-      }));
+    }));
 
     const classes = useStyles();
 
-    const blogFetcher = () => {
-        ref.get().then((doc) => {
-            if (doc.exists) {
-                setLoading(false)
-                const {url, name, topic, desc, dateCreated, display, content, author, authBio, id, timeCreated} = doc.data()
-                const dataBlog = {
-                    authBio: authBio,
-                    id: id,
-                    dateCreated: dateCreated,
-                    timeCreated: timeCreated,
-                    desc: desc,
-                    author: author,
-                    display: display,
-                    url: url,
-                    content: content,
-                    name: name,
-                    topic: topic
-                }
-                setBlog(dataBlog)
-                setName(name)
-                setDesc(desc)
-                setContent(content)
-                setAuthor(author)
-                setImage(url)
-                setDisplay(display)
-                setDateCreated(dateCreated)
-                setTopic(topic)
-                setAuthBio(authBio)
+    const onSubmit = () => {
+        dispatch(deleteBlog(id)).then(result => {
+            // Undefined payload = no errors
+            if (result.payload === undefined) {
+                history.replace("/blogs");
+                dispatch(fetchBlogs());
             }
         })
-        .catch((error) => {
-            console.log("Error getting document:", error);
-        });
-    }
-
-    const onSubmit = async () => {
-        setDeleteLoad(true)
-        await removeBlog(blog, history);
-        setDeleteLoad(false)
-        setOpen(false)
-    }
-
-    const handleOpen = () => {
-        setOpen(true);
     };
     
-    const handleClose = () => {
-        setOpen(false);
+    const toggleModal = () => {
+        setOpen(!open);
     };
 
     const scrollTop = () => {
-        document.body.scrollTop = 0
-        document.documentElement.scrollTop = 0
-    }
-
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    };
+    
+    // Fetch current blog
     useEffect(() => {
-        blogFetcher();
-    }, [props.match.params.id])
+        dispatch(fetchBlogToEdit(id));
+        if (blogs.length === 0) {
+            dispatch(fetchBlogs());
+        }
+    }, [id]);
 
+    // Set other blogs by filtering this blog from recent blogs
     useEffect(() => {
-        setOtherBlogs(blogs.filter(sideblog => sideblog.id !== id))
-    }, [blogs, props.match.params.id])
+        setOtherBlogs(recentBlogs.filter(sideblog => sideblog.id !== id))
+    }, [blogs, id]);
+
 
     const modalBody = (
         <div className={classes.modal}>
-            <Grid container justify="center" spacing={2}>
+            <Grid container justifyContent="center" spacing={2}>
                 <Grid item md={12}>
-                <Typography align="center">
-                <h2 id="simple-modal-title">Delete blog?</h2>
-                </Typography>
+                    <Typography align="center">
+                        <h2 id="simple-modal-title">Delete blog?</h2>
+                    </Typography>
                 </Grid>
                 <Grid item>
-                <Button className={classes.button} variant="contained" color="primary" onClick={onSubmit}>Yes</Button>
-                <Button className={classes.button} variant="contained" color="secondary" onClick={handleClose}>No</Button>
+                    <Button className={classes.button} variant="contained" color="primary" onClick={onSubmit}>
+                        {loading ? <CircularProgress size={20} /> : "Yes"}
+                    </Button>
+                    <Button className={classes.button} variant="contained" color="secondary" onClick={toggleModal}>
+                        No
+                    </Button>
                 </Grid>
             </Grid>
         </div>
     )
 
     if (loading) {
-        return <Loader />
+        return <Box pt={4} textAlign="center">
+            <CircularProgress />
+        </Box>
+    } else if (blogToEdit === undefined) {
+        return <Container>
+            <Box mt={2} textAlign="center">
+                <h3>No such blog!</h3>
+            </Box>
+        </Container>
     }
 
     return (
         <Container>
-            <Box mt={isSmall ? 4 : 8}>
-                <Grid container justify="center" spacing={isMedium ? 0 : 8}>
+            {blogToEdit && <Box mt={isSmall ? 4 : 8}>
+                <Grid container justifyContent="center" spacing={isMedium ? 0 : 8}>
                     <Grid item xs={11} sm={10} md={10} lg={8}>
                         <CardMedia>
-                            <img src={image} className={`${isSmall ? `${classes.mobileBlogThumbnail}` : `${classes.blogThumbnail}`}`} alt=""/>
+                            <img src={blogToEdit.url} className={`${isSmall ? `${classes.mobileBlogThumbnail}` : `${classes.blogThumbnail}`}`} alt=""/>
                         </CardMedia>
-                        <Typography gutterBottom className={classes.title}  variant="h3">{name}</Typography>
-                        <Typography gutterBottom className={classes.description}>{desc}</Typography>
-                        <Typography variant="overline">{dateCreated} by {display} - {topic}.</Typography>
+                        <Typography gutterBottom className={classes.title} variant="h3">{blogToEdit.name}</Typography>
+                        <Typography gutterBottom className={classes.description}>{blogToEdit.desc}</Typography>
+                        <Typography variant="overline">{blogToEdit.dateCreated} by {blogToEdit.displayName} - {blogToEdit.topic}.</Typography>
                         <Box mt={2} mb={isSmall ? 2 : 4}>
-                            <Typography className={classes.content} variant="body1">{content}</Typography>
+                            <Typography className={classes.content} variant="body1">{blogToEdit.content}</Typography>
                         </Box>
-                        {currentUser && currentUser.email === author ? 
+                        {user && userInfo.email === blogToEdit.email ? 
                             <Link to={{
-                                pathname:`/blogs/${id}/edit`
+                                pathname:`/blog/${id}/edit`
                             }}>
                                 <Button
-                                    alignItems="center" 
                                     variant="contained" 
                                     color="primary" 
-                                    className={classes.button}
-                                    onClick={handleOpen}>
+                                    className={classes.button}>
                                     Edit Blog
                                 </Button>
                             </Link> 
                         : null}
-                        {currentUser && currentUser.email === author ? 
+                        {user && userInfo.email === blogToEdit.email ? 
                             <Button 
-                                alignItems="center" 
                                 variant="contained" 
                                 color="secondary" 
                                 className={classes.button}
-                                disabled={deleteLoad}
-                                onClick={handleOpen}>
+                                onClick={toggleModal}>
                                 Delete Blog
                             </Button> 
                         : null}
                         <Modal
                             open={open}
-                            onClose={handleClose}
+                            onClose={toggleModal}
                             aria-labelledby="simple-modal-title"
                             aria-describedby="simple-modal-description"
                         >
                         {modalBody}
                         </Modal>
-                        {error ? <FlashMessage message={error} error={error}/> : null}                
                     </Grid>
                     
                     <Grid item xs={11} sm={10} md={10} lg={4}>
@@ -247,8 +208,8 @@ const Blog = (props) => {
                                     <Card variant="outlined">
                                         <Avatar style={{marginLeft: 'auto', marginRight: 'auto', marginTop: 30}}></Avatar>
                                         <CardContent>
-                                            <Typography gutterBottom variant="h5" component="h2">Author: {display}</Typography>
-                                            <Typography variant="body2" component="p" colo="textSecondary">{authBio}</Typography>
+                                            <Typography gutterBottom variant="h5" component="h2">Author: {blogToEdit.displayName}</Typography>
+                                            <Typography variant="body2" component="p" colo="textSecondary">{blogToEdit.bio}</Typography>
                                         </CardContent>
                                     </Card>
                                 </Grid>
@@ -260,7 +221,7 @@ const Blog = (props) => {
                                 <Grid container spacing={2} alignItems="center" key={blog.id}>
                                     <Grid item lg={5} onClick={scrollTop}>
                                         <Link to={{
-                                            pathname: `/blogs/${blog.id}`,
+                                            pathname: `/blog/${blog.id}`,
                                             state: {blog} }}>                                    
                                             <img src={blog.url} alt="Blog Thumbnails" className={classes.otherBlogThumbnail}></img>
                                         </Link>
@@ -276,13 +237,12 @@ const Blog = (props) => {
                         </Box>
                     </Grid>
                 </Grid>
+            </Box>}
+            <Box mb={3}>
+                <Footer/>
             </Box>
-        {success ? <FlashMessage message={success} success={success} /> : null}
-        <Box mb={3}>
-            <Footer/>
-        </Box>
         </Container>
     )
 }
 
-export default Blog
+export default Blog;

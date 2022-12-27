@@ -1,13 +1,15 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect} from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
 import MuiAlert from '@material-ui/lab/Alert';
+import { useSelector } from 'react-redux';
 
 function Alert (props) {
     return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
 
-const FlashMessage = ({ message, success }) => {
-    const [open, setOpen] = useState(true);
+const FlashMessage = () => {
+    const { message, type } = useSelector(state => state.toastSlice);
+    const [open, setOpen] = useState(false);
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -16,15 +18,15 @@ const FlashMessage = ({ message, success }) => {
     };
 
     useEffect(() => {
-        if (message.length > 0) {
-        setOpen(true);
+        if (message.length > 0 ) {
+            setOpen(true);
         }
-    }, [message]);
+    }, [message.length]);
 
     return (
         <div>
             <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
-                <Alert onClose={handleClose} severity={success ? 'success' : 'error'}>
+                <Alert onClose={handleClose} severity={type === 'success' ? 'success' : 'error'}>
                     {message}
                 </Alert>
             </Snackbar>
@@ -32,4 +34,4 @@ const FlashMessage = ({ message, success }) => {
     )
 }
 
-export default FlashMessage
+export default FlashMessage;

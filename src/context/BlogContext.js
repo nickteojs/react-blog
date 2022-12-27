@@ -6,7 +6,7 @@ export const BlogContext = createContext();
 export const BlogProvider = ({children}) => {
     const [blogs, setBlogs] = useState([]);
     const [filteredBlogs, setFilteredBlogs] = useState([]);
-    const [status, setStatus] = useState("all")
+    const [status, setStatus] = useState("All")
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState('')
     const [error, setError] = useState('')
