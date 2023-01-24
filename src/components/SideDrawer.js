@@ -95,11 +95,6 @@ const SideDrawer = () => {
                             <ListItemText>Search</ListItemText>
                         </ListItem>
                     </Link>
-                    <Link to="/blogs/all/1">
-                        <ListItem button onClick={() => setOpenDrawer(false)}>
-                            <ListItemText>All Blogs</ListItemText>
-                        </ListItem>
-                    </Link>
                 </List>
                 <Divider/>
                 {location.pathname === "/" || location.pathname.includes("blogs") ? <List>

@@ -1,6 +1,6 @@
 # React-Blog
 
-This is a blog application built on React, Context API, Material UI, and Firebase for the backend.
+This is a blog application built on React, Context API (switched to Redux Toolkit), Material UI, and Firebase for the backend.
 
 View working demo:
 https://react-blog-698ba.web.app/
